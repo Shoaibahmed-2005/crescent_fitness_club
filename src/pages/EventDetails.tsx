@@ -114,14 +114,14 @@ const EventDetails: React.FC = () => {
                             </p>
                           </div>
                           
-                          <div className="shrink-0">
+                          <div className="shrink-0 text-right">
                             {isRegistered ? (
                               <Button disabled variant="outline" className="w-full md:w-auto rounded-full border-green-500/50 text-green-400 bg-green-500/10">
                                 ALREADY REGISTERED
                               </Button>
                             ) : (
                               <Link to={`/events/${event.id}/register?subEvent=${se.id}`} onClick={(e) => {
-                                if (isClosed || genderMismatch || !user) {
+                                if (isClosed || genderMismatch || !user || (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity)) {
                                   e.preventDefault();
                                   if (!user) navigate('/login');
                                 }
@@ -129,14 +129,23 @@ const EventDetails: React.FC = () => {
                                 <Button 
                                   variant="primary" 
                                   className="w-full md:w-auto rounded-full tracking-widest text-xs font-bold px-8 py-3"
-                                  disabled={isClosed || !!genderMismatch}
+                                  disabled={isClosed || !!genderMismatch || (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity)}
                                 >
-                                  {isClosed ? 'CLOSED' : genderMismatch ? 'NOT ELIGIBLE (GENDER)' : 'REGISTER NOW'}
+                                  {isClosed ? 'CLOSED' 
+                                    : genderMismatch ? 'NOT ELIGIBLE (GENDER)' 
+                                    : (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity) ? 'FULL' 
+                                    : 'REGISTER NOW'}
                                 </Button>
                               </Link>
                             )}
+                            
                             {!user && (
                               <p className="text-[10px] text-gray-500 text-center mt-2">Sign in required</p>
+                            )}
+                            {user && se.current_registrations !== undefined && se.max_capacity - se.current_registrations > 0 && se.max_capacity - se.current_registrations <= 20 && (
+                              <p className="text-[10px] text-orange-400 font-bold tracking-widest uppercase mt-2">
+                                🔥 Limited slots: {se.max_capacity - se.current_registrations} remaining
+                              </p>
                             )}
                           </div>
                         </div>

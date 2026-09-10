@@ -32,6 +32,7 @@ export interface SubEvent {
   rules: string;
   max_capacity: number;
   created_at: string;
+  current_registrations?: number;
 }
 
 export interface Registration {

@@ -34,13 +34,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const fetchEventsData = async () => {
-    const [eventsRes, subEventsRes] = await Promise.all([
+    const [eventsRes, subEventsRes, countsRes] = await Promise.all([
       supabase.from('events').select('*').order('created_at', { ascending: false }),
-      supabase.from('sub_events').select('*')
+      supabase.from('sub_events').select('*'),
+      supabase.rpc('get_sub_event_counts')
     ]);
     
     if (eventsRes.data) setEvents(eventsRes.data as Event[]);
-    if (subEventsRes.data) setSubEvents(subEventsRes.data as SubEvent[]);
+    
+    if (subEventsRes.data) {
+      let subEvts = subEventsRes.data as SubEvent[];
+      if (countsRes.data) {
+        const countsMap = new Map<string, number>(countsRes.data.map((c: any) => [c.sub_event_id, Number(c.reg_count)]));
+        subEvts = subEvts.map(se => ({
+          ...se,
+          current_registrations: countsMap.get(se.id) || 0
+        }));
+      }
+      setSubEvents(subEvts);
+    }
   };
 
   const fetchRegistrations = async (userId: string | undefined) => {

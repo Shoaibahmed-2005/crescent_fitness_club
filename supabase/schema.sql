@@ -125,3 +125,12 @@ CREATE POLICY "Only Admins can upload images." ON storage.objects FOR INSERT WIT
   bucket_id = 'event-images' AND 
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ADMIN')
 );
+
+-- 6. RPC Functions
+CREATE OR REPLACE FUNCTION get_sub_event_counts()
+RETURNS TABLE(sub_event_id UUID, reg_count BIGINT)
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT sub_event_id, COUNT(*) FROM registrations GROUP BY sub_event_id;
+$$;

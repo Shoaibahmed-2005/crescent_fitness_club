@@ -29,6 +29,7 @@ export interface SubEvent {
   title: string;
   gender_restriction: 'MALE_ONLY' | 'FEMALE_ONLY' | 'GENERAL';
   venue: string;
+  description?: string;
   rules: string;
   max_capacity: number;
   created_at: string;

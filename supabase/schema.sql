@@ -82,6 +82,7 @@ CREATE TABLE sub_events (
   title TEXT NOT NULL,
   gender_restriction TEXT CHECK (gender_restriction IN ('MALE_ONLY', 'FEMALE_ONLY', 'GENERAL')) DEFAULT 'GENERAL',
   venue TEXT,
+  description TEXT,
   rules TEXT,
   max_capacity INTEGER DEFAULT 100,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

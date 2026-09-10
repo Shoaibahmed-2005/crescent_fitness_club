@@ -150,6 +150,11 @@ const EventDetails: React.FC = () => {
                           </div>
                         </div>
                         
+                        {se.description && (
+                          <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
+                            <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>
+                          </div>
+                        )}
                         {se.rules && (
                           <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5">
                             <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Rules & Requirements</h4>

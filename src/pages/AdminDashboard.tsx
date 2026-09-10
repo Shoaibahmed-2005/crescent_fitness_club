@@ -22,7 +22,7 @@ const AdminDashboard: React.FC = () => {
   
   const [isCreatingSubEvent, setIsCreatingSubEvent] = useState<string | null>(null); // event_id
   const [editingSubEventId, setEditingSubEventId] = useState<string | null>(null);
-  const [newSubEvent, setNewSubEvent] = useState({ title: '', gender_restriction: 'GENERAL', venue: '', rules: '', max_capacity: 100 });
+  const [newSubEvent, setNewSubEvent] = useState({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
 
   useEffect(() => {
     if (user?.role === 'ADMIN') {
@@ -129,6 +129,7 @@ const AdminDashboard: React.FC = () => {
       title: newSubEvent.title,
       gender_restriction: newSubEvent.gender_restriction,
       venue: newSubEvent.venue,
+      description: newSubEvent.description,
       rules: newSubEvent.rules,
       max_capacity: newSubEvent.max_capacity
     }]).select();
@@ -136,7 +137,7 @@ const AdminDashboard: React.FC = () => {
     if (data) {
       setSubEvents([...subEvents, data[0]]);
       setIsCreatingSubEvent(null);
-      setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', rules: '', max_capacity: 100 });
+      setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
     }
   };
 
@@ -148,6 +149,7 @@ const AdminDashboard: React.FC = () => {
       title: newSubEvent.title,
       gender_restriction: newSubEvent.gender_restriction,
       venue: newSubEvent.venue,
+      description: newSubEvent.description,
       rules: newSubEvent.rules,
       max_capacity: newSubEvent.max_capacity
     }).eq('id', id).select();
@@ -155,7 +157,7 @@ const AdminDashboard: React.FC = () => {
     if (data) {
       setSubEvents(subEvents.map(se => se.id === id ? data[0] : se));
       setEditingSubEventId(null);
-      setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', rules: '', max_capacity: 100 });
+      setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
     }
   };
 
@@ -185,6 +187,7 @@ const AdminDashboard: React.FC = () => {
       title: se.title,
       gender_restriction: se.gender_restriction,
       venue: se.venue || '',
+      description: se.description || '',
       rules: se.rules || '',
       max_capacity: se.max_capacity || 100
     });
@@ -323,7 +326,9 @@ const AdminDashboard: React.FC = () => {
                             <option value="FEMALE_ONLY">Female Only</option>
                           </select>
                           <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
+                          <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                         </div>
+                        <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-20" />
                         <div className="flex justify-end gap-2">
                           <Button type="button" variant="ghost" size="sm" onClick={() => setIsCreatingSubEvent(null)}>CANCEL</Button>
                           <Button type="submit" size="sm">ADD</Button>
@@ -367,6 +372,7 @@ const AdminDashboard: React.FC = () => {
                                     <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
                                     <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
                                   </div>
+                                  <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
                                   <textarea placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
                                   <div className="flex justify-end gap-2">
                                     <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSubEventId(null)}>CANCEL</Button>

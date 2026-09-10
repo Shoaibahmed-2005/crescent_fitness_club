@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/Button';
-import { Hexagon, LogIn, AlertCircle } from 'lucide-react';
+import { LogIn, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -67,7 +67,7 @@ const Login: React.FC = () => {
           throw new Error('Email must end in @gmail.com or @crescent.education');
         }
 
-        const { data, error: authError } = await supabase.auth.signUp({
+        const { data: _data, error: authError } = await supabase.auth.signUp({
           email,
           password,
           options: {

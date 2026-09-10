@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Hexagon, Dumbbell, Timer, Activity, Users, Flame, Heart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '../components/Button';
 import EventCard from '../components/EventCard';
 import { useApp } from '../context/AppContext';
@@ -67,7 +67,7 @@ const Home: React.FC = () => {
                 <div className="grid grid-cols-2 gap-8 mb-10">
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">DATE</p>
-                    <p className="font-medium text-white">{new Date(featuredEvent.date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</p>
+                    <p className="font-medium text-white">{featuredEvent.registration_deadline ? new Date(featuredEvent.registration_deadline).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : 'No deadline'}</p>
                   </div>
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">VENUE</p>
@@ -86,7 +86,7 @@ const Home: React.FC = () => {
               
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full group-hover:bg-primary/30 transition-colors"></div>
-                <img src={featuredEvent.posterUrl} alt={featuredEvent.title} className="relative z-10 w-full h-[500px] object-cover rounded-2xl border border-white/10 grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" />
+                <img src={featuredEvent.image_url || ''} alt={featuredEvent.title} className="relative z-10 w-full h-[500px] object-cover rounded-2xl border border-white/10 grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" />
               </div>
             </div>
           </div>

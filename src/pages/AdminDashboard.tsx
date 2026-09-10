@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar as CalIcon, Plus, Upload, Trash2, Edit2 } from 'lucide-react';
+import { ShieldCheck, Users, Calendar as CalIcon, Plus } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/Button';
@@ -61,7 +61,7 @@ const AdminDashboard: React.FC = () => {
       }
     }
 
-    const { data, error } = await supabase.from('events').insert([{
+    const { data, error: _error } = await supabase.from('events').insert([{
       title: newEvent.title,
       description: newEvent.description,
       venue: newEvent.venue,
@@ -82,7 +82,7 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     if (!newSubEvent.title) return;
 
-    const { data, error } = await supabase.from('sub_events').insert([{
+    const { data, error: _error } = await supabase.from('sub_events').insert([{
       event_id: eventId,
       title: newSubEvent.title,
       gender_restriction: newSubEvent.gender_restriction,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Share2, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Share2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useApp } from '../context/AppContext';
 import { cn } from '../components/Button';

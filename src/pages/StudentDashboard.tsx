@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { User, Calendar, XCircle, Download } from 'lucide-react';
+import { User, Calendar, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/Button';
 import { cn } from '../components/Button';

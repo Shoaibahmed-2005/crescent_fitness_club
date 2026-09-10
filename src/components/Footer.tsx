@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Hexagon, Mail, MapPin, Phone } from 'lucide-react';
-import { Button } from './Button';
+
 
 const Footer: React.FC = () => {
   return (

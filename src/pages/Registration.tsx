@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle2, AlertCircle, Calendar, MapPin } from 'lucide-react';
+import { AlertCircle, MapPin } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/Button';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Hexagon, ArrowLeft, User, Share2 } from 'lucide-react';
+import { Menu, X, ArrowLeft, User, Share2 } from 'lucide-react';
 import { Button } from './Button';
 import { useApp } from '../context/AppContext';
 import { cn } from './Button';

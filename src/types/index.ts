@@ -1,46 +1,47 @@
 export type EventCategory = 'TECHNICAL' | 'CULTURAL' | 'SPORTS' | 'WORKSHOPS' | 'COMPETITIONS' | 'HACKATHON' | 'BUSINESS';
 
-export interface Event {
-  id: string;
-  title: string;
-  category: EventCategory;
-  date: string;
-  time: string;
-  venue: string;
-  shortDescription: string;
-  description: string;
-  organizer: string;
-  rules: string[];
-  eligibility: string;
-  teamSize: string;
-  registrationDeadline: string;
-  availableSlots: number;
-  totalSlots: number;
-  posterUrl: string;
-  fee: string;
-  status: 'OPEN' | 'SOLD OUT' | 'CLOSING SOON' | 'UPCOMING';
-}
-
 export interface User {
   id: string;
   name: string;
   email: string;
   role: 'STUDENT' | 'ADMIN';
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
   phone?: string;
-  college?: string;
-  year?: string;
+  registration_number?: string;
+  created_at?: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  venue: string;
+  registration_deadline: string;
+  image_url?: string;
+  is_active: boolean;
+  created_at: string;
+  created_by?: string;
+}
+
+export interface SubEvent {
+  id: string;
+  event_id: string;
+  title: string;
+  gender_restriction: 'MALE_ONLY' | 'FEMALE_ONLY' | 'GENERAL';
+  venue: string;
+  rules: string;
+  max_capacity: number;
+  created_at: string;
 }
 
 export interface Registration {
   id: string;
-  eventId: string;
-  userId: string;
-  name: string;
-  rrn: string;
-  gmail: string;
-  department: string;
-  year: string;
-  phone: string;
-  registrationDate: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  sub_event_id: string;
+  user_id: string;
+  status: 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED';
+  created_at: string;
+  
+  // Relational data usually fetched in queries
+  sub_event?: SubEvent;
+  user?: User;
 }

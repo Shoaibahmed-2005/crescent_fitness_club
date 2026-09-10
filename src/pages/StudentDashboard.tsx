@@ -4,161 +4,148 @@ import { User, Calendar, XCircle, Download } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/Button';
 import { cn } from '../components/Button';
+import { supabase } from '../lib/supabase';
 
 const StudentDashboard: React.FC = () => {
-  const { user, registrations, events, cancelRegistration } = useApp();
+  const { user, registrations, events, subEvents, refreshData } = useApp();
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  const userRegistrations = registrations.filter(r => r.userId === user.id);
+  // Redirect admin users to admin dashboard if they end up here
+  if (user.role === 'ADMIN') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const cancelRegistration = async (id: string) => {
+    if (!window.confirm('Are you sure you want to cancel this registration?')) return;
+    
+    await supabase.from('registrations').update({ status: 'CANCELLED' }).eq('id', id);
+    await refreshData();
+  };
 
   return (
-    <div className="py-6 md:py-12 container mx-auto px-4 sm:px-6 relative z-10 min-h-screen">
+    <div className="py-24 container mx-auto px-4 sm:px-6 relative z-10 min-h-screen">
       
-      {/* Mobile Optimized Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black mb-1 md:mb-2 tracking-tight text-glow uppercase">STUDENT DASHBOARD</h1>
-          <p className="text-sm md:text-base text-gray-400">Manage your event registrations and profile.</p>
+          <h1 className="text-3xl md:text-5xl font-black mb-2 tracking-tighter text-[#f4f1ea] uppercase font-display">STUDENT DASHBOARD</h1>
+          <p className="text-sm md:text-lg text-gray-400">Manage your event registrations and profile.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Profile Section - Mobile optimized to be horizontal, Desktop vertical */}
+        {/* Profile Section */}
         <div className="lg:col-span-4 xl:col-span-3">
-          <div className="bg-[#0a0a0a] border border-white/5 p-5 md:p-6 rounded-2xl md:sticky md:top-28 shadow-xl">
+          <div className="bg-[#140f0c] border border-white/5 p-6 rounded-3xl md:sticky md:top-28 shadow-2xl">
             <div className="flex flex-row lg:flex-col items-center lg:items-start gap-5 lg:gap-0">
-              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-[#111] rounded-full flex items-center justify-center shrink-0 border border-white/10 lg:mb-6">
+              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-[#1d1612] rounded-full flex items-center justify-center shrink-0 border border-white/10 lg:mb-6">
                 <User className="w-8 h-8 lg:w-10 lg:h-10 text-gray-400" />
               </div>
               
               <div className="flex-grow">
-                <h3 className="text-lg md:text-xl font-bold mb-0.5 md:mb-1 text-white line-clamp-1">{user.name}</h3>
-                <p className="text-xs md:text-sm text-primary lg:mb-6 line-clamp-1">{user.email}</p>
+                <h3 className="text-xl font-black mb-1 text-white line-clamp-1 font-display">{user.name}</h3>
+                <p className="text-sm text-primary lg:mb-2 line-clamp-1">{user.registration_number}</p>
+                <p className="text-xs text-gray-400 lg:mb-6 line-clamp-1">{user.email}</p>
               </div>
             </div>
             
-            <div className="mt-5 lg:mt-0 pt-5 lg:pt-6 border-t border-white/5 flex flex-row lg:flex-col justify-between lg:justify-start items-center lg:items-start gap-4">
+            <div className="mt-6 pt-6 border-t border-white/5 flex flex-col gap-4">
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Registered Events</p>
-                <p className="font-display text-2xl lg:text-3xl font-black text-white">{userRegistrations.length}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Registered Sub-Events</p>
+                <p className="font-display text-3xl font-black text-white">{registrations.length}</p>
               </div>
-              <div className="lg:hidden">
-                <Link to="/events">
-                  <Button variant="outline" size="sm" className="text-xs tracking-widest font-bold h-9 px-4">BROWSE</Button>
-                </Link>
-              </div>
+              <Link to="/events" className="mt-2">
+                <Button variant="outline" className="w-full text-xs tracking-widest font-bold rounded-full">BROWSE EVENTS</Button>
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Registrations List */}
         <div className="lg:col-span-8 xl:col-span-9">
-          <div className="bg-[#0a0a0a] rounded-2xl overflow-hidden border border-white/5 shadow-xl">
-            <div className="p-5 md:p-6 border-b border-white/5 flex items-center justify-between">
-              <h3 className="text-lg md:text-xl font-black uppercase tracking-wide text-white flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" /> My Events
+          <div className="bg-[#140f0c] rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <h3 className="text-xl font-black uppercase tracking-wide text-white flex items-center gap-2 font-display">
+                <Calendar className="w-5 h-5 text-primary" /> My Registrations
               </h3>
-              <Link to="/events" className="hidden lg:block">
-                <Button variant="outline" size="sm" className="text-xs tracking-widest font-bold">BROWSE MORE</Button>
-              </Link>
             </div>
             
             <div className="divide-y divide-white/5">
-              {userRegistrations.length === 0 ? (
-                <div className="p-8 md:p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-[#111] rounded-full flex items-center justify-center mb-4 border border-white/10">
+              {registrations.length === 0 ? (
+                <div className="p-12 text-center flex flex-col items-center justify-center bg-[#1d1612]">
+                  <div className="w-16 h-16 bg-[#140f0c] rounded-full flex items-center justify-center mb-4 border border-white/10">
                     <Calendar className="w-6 h-6 text-gray-500" />
                   </div>
                   <p className="text-gray-400 mb-6 text-sm">You haven't registered for any events yet.</p>
-                  <Link to="/events" className="w-full sm:w-auto">
-                    <Button variant="primary" fullWidth className="tracking-widest font-bold text-xs py-3.5">FIND EVENTS</Button>
+                  <Link to="/events">
+                    <Button variant="primary" className="tracking-widest font-bold text-xs py-3 rounded-full">FIND EVENTS</Button>
                   </Link>
                 </div>
               ) : (
-                userRegistrations.map(reg => {
-                  const event = events.find(e => e.id === reg.eventId);
-                  if (!event) return null;
+                registrations.map(reg => {
+                  const se = subEvents.find(s => s.id === reg.sub_event_id) || reg.sub_event;
+                  const event = events.find(e => e.id === se?.event_id);
+                  if (!se || !event) return null;
 
                   return (
-                    <div key={reg.id} className="p-4 md:p-6 hover:bg-white/[0.02] transition-colors flex flex-col gap-4">
-                      
-                      {/* Mobile Layout: Stacked image and content */}
+                    <div key={reg.id} className="p-6 hover:bg-white/[0.02] transition-colors flex flex-col gap-4">
                       <div className="flex flex-row gap-4 items-start">
                         {/* Event Thumbnail */}
-                        <div className="w-20 h-24 md:w-32 md:h-24 shrink-0 rounded-lg overflow-hidden border border-white/10 relative bg-[#111]">
-                          <img src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:hidden" />
-                          <div className="absolute bottom-2 left-2 right-2 md:hidden">
-                            <span className={cn(
-                              "text-[8px] px-1.5 py-0.5 rounded font-bold tracking-widest uppercase block text-center backdrop-blur-sm border",
-                              reg.status === 'CONFIRMED' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'
-                            )}>
-                              {reg.status}
-                            </span>
-                          </div>
+                        <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-white/10 relative bg-[#111] hidden md:block">
+                          <img src={event.image_url || 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80'} alt={event.title} className="w-full h-full object-cover" />
                         </div>
 
                         {/* Event Info */}
                         <div className="flex-grow min-w-0 flex flex-col justify-between h-full">
                           <div>
-                            <div className="hidden md:flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-3 mb-2">
                               <span className={cn(
                                 "text-[9px] px-2 py-0.5 rounded font-bold tracking-widest uppercase border",
                                 reg.status === 'CONFIRMED' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'
                               )}>
                                 {reg.status}
                               </span>
-                              <span className="text-[10px] text-gray-500 font-mono tracking-wider font-bold">ID: {reg.id}</span>
                             </div>
                             
-                            <Link to={`/events/${event.id}`} className="text-base md:text-xl font-black text-white hover:text-primary transition-colors block mb-1 tracking-tight truncate">
+                            <Link to={`/events/${event.id}`} className="text-xl font-black text-white hover:text-primary transition-colors block tracking-tight truncate font-display">
                               {event.title}
                             </Link>
+                            <p className="text-sm font-bold text-primary tracking-widest uppercase mb-2">{se.title}</p>
                             
                             <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-400 gap-1 sm:gap-3">
-                              <span className="font-medium text-gray-300">{new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                              <span className="font-medium text-gray-300">
+                                {event.registration_deadline ? new Date(event.registration_deadline).toLocaleDateString() : 'No Deadline'}
+                              </span>
                               <span className="hidden sm:inline text-gray-600">•</span>
-                              <span className="truncate">{event.venue}</span>
-                            </div>
-                            
-                            {/* Mobile specific ID display */}
-                            <div className="md:hidden mt-2">
-                              <span className="text-[10px] text-gray-500 font-mono font-bold tracking-wider bg-[#111] px-2 py-1 rounded border border-white/5">ID: {reg.id}</span>
+                              <span className="truncate">{se.venue || event.venue}</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Action Buttons (Full width on mobile, auto on desktop) */}
-                      <div className="flex items-center gap-2 md:gap-3 w-full mt-2 md:mt-0 md:justify-end">
-                        <Link to={`/events/${event.id}`} className="flex-1 md:flex-none">
-                          <Button variant="outline" size="sm" className="w-full text-xs tracking-widest font-bold h-10 border-white/10 bg-[#111] hover:bg-white/5 md:hidden">
-                            DETAILS
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-3 w-full mt-2 md:justify-end">
+                        <Link to={`/events/${event.id}`}>
+                          <Button variant="outline" size="sm" className="text-xs tracking-widest font-bold rounded-full">
+                            VIEW DETAILS
                           </Button>
                         </Link>
                         
                         {reg.status === 'CONFIRMED' && (
-                          <>
-                            <Button variant="secondary" size="sm" className="flex-1 md:flex-none text-xs tracking-widest font-bold h-10">
-                              <Download className="w-4 h-4 mr-2" /> <span className="md:inline">DOWNLOAD</span> PASS
-                            </Button>
-                            <button 
-                              onClick={() => cancelRegistration(reg.id)}
-                              className="w-10 h-10 md:w-auto md:px-3 shrink-0 flex items-center justify-center text-gray-400 hover:text-red-500 bg-[#111] hover:bg-red-500/10 rounded-md transition-colors border border-white/5 md:border-transparent"
-                              title="Cancel Registration"
-                            >
-                              <XCircle className="w-5 h-5 md:mr-2 md:hidden" />
-                              <XCircle className="w-4 h-4 mr-2 hidden md:inline" />
-                              <span className="hidden md:inline text-xs font-bold tracking-widest uppercase">CANCEL</span>
-                            </button>
-                          </>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => cancelRegistration(reg.id)}
+                            className="text-xs tracking-widest font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-full"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" /> CANCEL
+                          </Button>
                         )}
                       </div>
-                      
                     </div>
                   );
                 })

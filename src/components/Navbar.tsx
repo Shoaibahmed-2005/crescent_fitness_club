@@ -21,10 +21,10 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { name: 'HOME', path: '/' },
+    { name: 'COMMUNITY', path: '/community' },
+    { name: 'WELLNESS', path: '/wellness' },
     { name: 'EVENTS', path: '/events' },
-    { name: 'ABOUT', path: '/about' },
-    { name: 'CONTACT', path: '/contact' },
+    { name: 'FOUNDERS', path: '/founders' },
   ];
 
   // Specific header for the Events list page
@@ -71,19 +71,18 @@ const Navbar: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="hidden md:flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-black text-white">
-                C
-              </div>
-              <span className="text-xs font-black tracking-widest text-white">CRESCENT FITNESS CLUB</span>
+              <img src="/logo.png" alt="CFC Logo" className="h-8 w-auto object-contain" />
             </div>
           </div>
           
-          {/* Center */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link to="/about" className="text-xs font-bold tracking-widest text-gray-400 hover:text-white transition-colors">ABOUT</Link>
-            <Link to="/contact" className="text-xs font-bold tracking-widest text-gray-400 hover:text-white transition-colors">CONTACT</Link>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex flex-1 justify-center items-center gap-8">
+            <Link to="/community" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">COMMUNITY</Link>
+            <Link to="/wellness" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">WELLNESS</Link>
+            <Link to="/events" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">EVENTS</Link>
+            <Link to="/founders" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">FOUNDERS</Link>
             <span className={cn(
-              "text-xs font-bold tracking-widest transition-colors",
+              "text-xs font-bold tracking-widest transition-colors uppercase",
               isRegisterRoute ? "text-primary" : "text-gray-400"
             )}>
               REGISTER
@@ -117,14 +116,12 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <Hexagon className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
-          <span className="font-display font-bold text-xl tracking-widest text-white hidden sm:block">CRESCENT FITNESS CLUB<span className="text-primary">.</span></span>
-          <span className="font-display font-bold text-xl tracking-widest text-white sm:hidden">CFC<span className="text-primary">.</span></span>
+        <Link to="/" className="flex items-center gap-2 z-50">
+          <img src="/logo.png" alt="CFC Logo" className="h-16 md:h-20 w-auto object-contain" />
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex flex-1 justify-center items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -153,11 +150,11 @@ const Navbar: React.FC = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm" className="tracking-widest">SIGN IN</Button>
+                <Button variant="ghost" size="sm" className="tracking-widest rounded-full">SIGN IN</Button>
               </Link>
-              <Link to="/login">
-                <Button variant="primary" size="sm" className="tracking-widest">JOIN THE CLUB</Button>
-              </Link>
+              <a href="https://chat.whatsapp.com/JxqCas59Be69t5OdmDu0Hf" target="_blank" rel="noopener noreferrer">
+                <Button variant="primary" size="sm" className="tracking-widest rounded-full">JOIN THE CLUB</Button>
+              </a>
             </>
           )}
         </div>
@@ -195,11 +192,11 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" fullWidth className="tracking-widest">SIGN IN</Button>
+                  <Button variant="ghost" fullWidth className="tracking-widest rounded-full">SIGN IN</Button>
                 </Link>
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="primary" fullWidth className="tracking-widest">JOIN THE CLUB</Button>
-                </Link>
+                <a href="https://chat.whatsapp.com/JxqCas59Be69t5OdmDu0Hf" target="_blank" rel="noopener noreferrer" className="block w-full">
+                  <Button variant="primary" fullWidth className="tracking-widest rounded-full">JOIN THE CLUB</Button>
+                </a>
               </>
             )}
           </div>

@@ -17,26 +17,25 @@ const Footer: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Call Card */}
-            <div className="bg-[#111] border border-white/5 rounded-2xl p-6 flex items-center gap-6">
-              <div className="w-12 h-12 bg-black rounded-xl border border-white/5 flex items-center justify-center shrink-0">
-                <Phone className="w-5 h-5 text-gray-400" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">SECRETARY - SHOAIB SHERRIF AHMED</p>
-                <p className="text-xl font-bold text-white tracking-wide">9940086123</p>
-              </div>
-            </div>
-            
-            {/* Email Card */}
-            <div className="bg-[#111] border border-white/5 rounded-2xl p-6 flex items-center gap-6">
-              <div className="w-12 h-12 bg-black rounded-xl border border-white/5 flex items-center justify-center shrink-0">
-                <Mail className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="truncate">
-                <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">EMAIL ORGANIZER</p>
-                <p className="text-lg md:text-xl font-bold text-white tracking-wide truncate">prakashpacha1997@gmail.com</p>
-              </div>
-            </div>
+              <a href="tel:9940086123" className="bg-[#111] p-6 rounded-xl border border-white/5 flex items-start gap-4 hover:border-primary/50 transition-colors block">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1">SECRETARY - SHOAIB SHERRIF AHMED</p>
+                  <p className="text-xl font-bold text-white hover:text-primary transition-colors">9940086123</p>
+                </div>
+              </a>
+              
+              <a href="mailto:crescentfitnessclub@gmail.com" className="bg-[#111] p-6 rounded-xl border border-white/5 flex items-start gap-4 hover:border-primary/50 transition-colors block">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="truncate">
+                  <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1">EMAIL ORGANIZER</p>
+                  <p className="text-lg md:text-xl font-bold text-white hover:text-primary transition-colors truncate">crescentfitnessclub@gmail.com</p>
+                </div>
+              </a>
           </div>
         </div>
 
@@ -57,6 +56,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li><Link to="/" className="text-sm text-gray-400 hover:text-primary transition-colors">Home</Link></li>
               <li><Link to="/events" className="text-sm text-gray-400 hover:text-primary transition-colors">Events</Link></li>
+              <li><Link to="/founders" className="text-sm text-gray-400 hover:text-primary transition-colors">Founders</Link></li>
               <li><Link to="/about" className="text-sm text-gray-400 hover:text-primary transition-colors">About</Link></li>
               <li><Link to="/contact" className="text-sm text-gray-400 hover:text-primary transition-colors">Contact</Link></li>
               <li><Link to="/login" className="text-sm text-gray-400 hover:text-primary transition-colors font-bold text-white">JOIN THE CLUB</Link></li>

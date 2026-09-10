@@ -23,6 +23,7 @@ const AdminDashboard: React.FC = () => {
   const [isCreatingSubEvent, setIsCreatingSubEvent] = useState<string | null>(null); // event_id
   const [editingSubEventId, setEditingSubEventId] = useState<string | null>(null);
   const [newSubEvent, setNewSubEvent] = useState({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
+  const [subEventImage, setSubEventImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (user?.role === 'ADMIN') {
@@ -124,12 +125,24 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     if (!newSubEvent.title) return;
 
+    let imageUrl = '';
+    if (subEventImage) {
+      const fileExt = subEventImage.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('event-images').upload(fileName, subEventImage);
+      if (!error && data) {
+        const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
+        imageUrl = publicUrl;
+      }
+    }
+
     const { data, error: _error } = await supabase.from('sub_events').insert([{
       event_id: eventId,
       title: newSubEvent.title,
       gender_restriction: newSubEvent.gender_restriction,
       venue: newSubEvent.venue,
       description: newSubEvent.description,
+      image_url: imageUrl,
       rules: newSubEvent.rules,
       max_capacity: newSubEvent.max_capacity
     }]).select();
@@ -138,6 +151,7 @@ const AdminDashboard: React.FC = () => {
       setSubEvents([...subEvents, data[0]]);
       setIsCreatingSubEvent(null);
       setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
+      setSubEventImage(null);
     }
   };
 
@@ -145,11 +159,23 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     if (!newSubEvent.title) return;
 
+    let imageUrl = subEvents.find(se => se.id === id)?.image_url || '';
+    if (subEventImage) {
+      const fileExt = subEventImage.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('event-images').upload(fileName, subEventImage);
+      if (!error && data) {
+        const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
+        imageUrl = publicUrl;
+      }
+    }
+
     const { data, error: _error } = await supabase.from('sub_events').update({
       title: newSubEvent.title,
       gender_restriction: newSubEvent.gender_restriction,
       venue: newSubEvent.venue,
       description: newSubEvent.description,
+      image_url: imageUrl,
       rules: newSubEvent.rules,
       max_capacity: newSubEvent.max_capacity
     }).eq('id', id).select();
@@ -158,6 +184,7 @@ const AdminDashboard: React.FC = () => {
       setSubEvents(subEvents.map(se => se.id === id ? data[0] : se));
       setEditingSubEventId(null);
       setNewSubEvent({ title: '', gender_restriction: 'GENERAL', venue: '', description: '', rules: '', max_capacity: 100 });
+      setSubEventImage(null);
     }
   };
 
@@ -327,6 +354,7 @@ const AdminDashboard: React.FC = () => {
                           </select>
                           <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                           <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
+                          <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                         </div>
                         <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-20" />
                         <div className="flex justify-end gap-2">
@@ -346,8 +374,11 @@ const AdminDashboard: React.FC = () => {
                             <div key={se.id} className="bg-[#1d1612] border border-white/5 p-4 rounded-lg flex flex-col justify-between items-start gap-4">
                               <div className="w-full flex justify-between items-start">
                                 <div>
-                                  <p className="font-bold text-sm text-white">{se.title}</p>
-                                  <p className="text-[10px] text-gray-400 uppercase tracking-widest">{se.gender_restriction.replace('_', ' ')}</p>
+                                  <div className="flex items-center gap-3">
+                                    {se.image_url && <img src={se.image_url} alt={se.title} className="w-8 h-8 rounded object-cover" />}
+                                    <p className="font-bold text-sm text-white">{se.title}</p>
+                                  </div>
+                                  <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">{se.gender_restriction.replace('_', ' ')}</p>
                                 </div>
                                 <div className="text-right">
                                   <p className="text-xs text-gray-400">Registrations</p>
@@ -371,6 +402,7 @@ const AdminDashboard: React.FC = () => {
                                     </select>
                                     <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
                                     <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
+                                    <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 text-sm" />
                                   </div>
                                   <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
                                   <textarea placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />

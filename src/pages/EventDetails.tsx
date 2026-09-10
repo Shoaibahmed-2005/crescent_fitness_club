@@ -150,6 +150,11 @@ const EventDetails: React.FC = () => {
                           </div>
                         </div>
                         
+                        {se.image_url && (
+                          <div className="mb-6 rounded-xl overflow-hidden border border-white/5 aspect-video relative">
+                            <img src={se.image_url} alt={se.title} className="w-full h-full object-cover" />
+                          </div>
+                        )}
                         {se.description && (
                           <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
                             <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>

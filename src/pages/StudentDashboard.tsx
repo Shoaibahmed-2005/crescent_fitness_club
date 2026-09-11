@@ -7,7 +7,15 @@ import { cn } from '../components/Button';
 import { supabase } from '../lib/supabase';
 
 const StudentDashboard: React.FC = () => {
-  const { user, registrations, events, subEvents, refreshData } = useApp();
+  const { user, registrations, events, subEvents, refreshData, isLoading } = useApp();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24 bg-transparent">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

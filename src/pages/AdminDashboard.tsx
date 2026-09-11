@@ -7,7 +7,7 @@ import { Button } from '../components/Button';
 import type { Event, SubEvent, Registration, User } from '../types';
 
 const AdminDashboard: React.FC = () => {
-  const { user } = useApp();
+  const { user, isLoading } = useApp();
   const [activeTab, setActiveTab] = useState<'REGISTRATIONS' | 'EVENTS'>('EVENTS');
   
   const [allRegistrations, setAllRegistrations] = useState<Registration[]>([]);
@@ -44,6 +44,14 @@ const AdminDashboard: React.FC = () => {
     if (regRes.data) setAllRegistrations(regRes.data);
     if (profilesRes.data) setProfiles(profilesRes.data);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24 bg-transparent">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!user || user.role !== 'ADMIN') {
     return <Navigate to="/login" replace />;

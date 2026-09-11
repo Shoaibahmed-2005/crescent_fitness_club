@@ -10,7 +10,7 @@ const Registration: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // event ID
   const navigate = useNavigate();
   const location = useLocation();
-  const { events, subEvents, user, refreshData } = useApp();
+  const { events, subEvents, refreshData } = useApp();
   
   const queryParams = new URLSearchParams(location.search);
   const subEventId = queryParams.get('subEvent');
@@ -18,9 +18,17 @@ const Registration: React.FC = () => {
   const event = events.find(e => e.id === id);
   const subEvent = subEvents.find(se => se.id === subEventId);
 
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    gender: 'MALE',
+    registration_number: ''
+  });
+
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<any>(null);
 
   if (!event || !subEvent) {
     return (
@@ -33,33 +41,53 @@ const Registration: React.FC = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center container mx-auto px-6">
-        <div className="text-center bg-[#1d1612] p-12 rounded-2xl border border-white/5">
-          <h2 className="text-3xl font-black mb-4 text-white font-display">Sign In Required</h2>
-          <Button onClick={() => navigate('/login')} className="rounded-full">SIGN IN</Button>
-        </div>
-      </div>
-    );
-  }
+  const validateForm = () => {
+    const { name, email, phone, gender, registration_number } = formData;
+    
+    if (!name.trim()) return "Full Name is required.";
+    if (!gender) return "Gender is required.";
+    
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone.trim())) return "Phone number must be exactly 10 digits.";
+    
+    const emailStr = email.trim().toLowerCase();
+    if (!emailStr.endsWith('@gmail.com') && !emailStr.endsWith('@crescent.education')) {
+      return "Email must be a @gmail.com or @crescent.education address.";
+    }
+    
+    const rrnRegex = /^\d{12}$/;
+    if (!rrnRegex.test(registration_number.trim())) {
+      return "Registration Number (RRN) must be exactly 12 digits.";
+    }
+    
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError('');
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      // Supabase insert
-      const { error: insertError } = await supabase.from('registrations').insert([{
-        sub_event_id: subEvent.id,
-        user_id: user.id,
-        status: 'CONFIRMED'
-      }]);
+      // Call the secure RPC function
+      const { data, error: rpcError } = await supabase.rpc('process_registration', {
+        p_name: formData.name.trim(),
+        p_email: formData.email.trim(),
+        p_gender: formData.gender,
+        p_phone: formData.phone.trim(),
+        p_reg_number: formData.registration_number.trim(),
+        p_sub_event_id: subEvent.id
+      });
 
-      if (insertError) {
-        if (insertError.code === '23505') throw new Error('You are already registered for this sub-event.');
-        throw insertError;
+      if (rpcError) {
+        throw new Error(rpcError.message);
       }
 
       // Send Confirmation Email
@@ -68,11 +96,11 @@ const Registration: React.FC = () => {
           'service_hab7guz',
           'template_vyqf2ym',
           {
-            to_name: user.name,
-            to_email: user.email,
+            to_name: data.profile.name,
+            to_email: data.profile.email,
             event_name: event.title,
             sub_event_name: subEvent.title,
-            registration_number: user.registration_number,
+            registration_number: data.profile.registration_number,
             venue: subEvent.venue || event.venue || 'TBA',
             date: event.registration_deadline ? new Date(event.registration_deadline).toLocaleDateString() : 'TBA'
           },
@@ -84,7 +112,7 @@ const Registration: React.FC = () => {
       }
 
       await refreshData();
-      setSuccess(true);
+      setSuccessData(data);
     } catch (err: any) {
       setError(err.message || 'Failed to register.');
     } finally {
@@ -92,7 +120,7 @@ const Registration: React.FC = () => {
     }
   };
 
-  if (success) {
+  if (successData) {
     return (
       <div className="min-h-screen pt-32 pb-24 container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
         <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter text-white uppercase font-display text-glow">REGISTRATION CONFIRMED</h1>
@@ -116,24 +144,34 @@ const Registration: React.FC = () => {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">NAME</p>
-                <p className="text-sm font-medium text-white line-clamp-1">{user.name}</p>
+                <p className="text-sm font-medium text-white line-clamp-1">{successData.profile.name}</p>
               </div>
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">RRN</p>
-                <p className="text-sm font-medium text-white">{user.registration_number}</p>
+                <p className="text-sm font-medium text-white">{successData.profile.registration_number}</p>
               </div>
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">EMAIL</p>
-                <p className="text-sm font-medium text-white">{user.email}</p>
+                <p className="text-sm font-medium text-white">{successData.profile.email}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
+                <p className="text-sm font-medium text-white">{successData.profile.phone}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">GENDER</p>
+                <p className="text-sm font-medium text-white">{successData.profile.gender}</p>
               </div>
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
                 <p className="text-sm font-medium text-white">{user.phone || 'N/A'}</p>
               </div>
             </div>
-            <div className="pt-4 border-t border-white/5 flex items-center gap-3">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">STATUS</p>
-              <span className="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold tracking-widest uppercase rounded">CONFIRMED</span>
+            <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">STATUS</p>
+                <span className="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold tracking-widest uppercase rounded">CONFIRMED</span>
+              </div>
             </div>
           </div>
         </div>
@@ -151,8 +189,8 @@ const Registration: React.FC = () => {
       <div className="container mx-auto px-6 max-w-3xl">
         
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-white uppercase font-display text-glow">CONFIRM REGISTRATION</h1>
-          <p className="text-gray-400 text-lg">Please confirm your details to register.</p>
+          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-white uppercase font-display text-glow">EVENT REGISTRATION</h1>
+          <p className="text-gray-400 text-lg">Enter your details below to register.</p>
         </div>
 
         <div className="bg-[#140f0c] border border-white/5 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
@@ -178,27 +216,68 @@ const Registration: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-[#1d1612] p-6 rounded-2xl border border-white/5">
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">NAME</p>
-                <p className="text-sm font-medium text-white">{user.name}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Full Name</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Enter your full name" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
               </div>
+
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">RRN</p>
-                <p className="text-sm font-medium text-white">{user.registration_number}</p>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Email Address</label>
+                <input 
+                  type="email" 
+                  required
+                  placeholder="student@gmail.com" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
               </div>
+
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">EMAIL</p>
-                <p className="text-sm font-medium text-white">{user.email}</p>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Phone Number</label>
+                <input 
+                  type="tel" 
+                  required
+                  placeholder="10 digit number" 
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
               </div>
+
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">RRN (12 Digits)</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Registration Number" 
+                  value={formData.registration_number}
+                  onChange={(e) => setFormData({...formData, registration_number: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
-                <p className="text-sm font-medium text-white">{user.phone || 'N/A'}</p>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Gender</label>
+                <select 
+                  required
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                >
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
               </div>
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">GENDER</p>
-                <p className="text-sm font-medium text-white">{user.gender}</p>
-              </div>
+
             </div>
 
             <div className="pt-6">
@@ -208,7 +287,7 @@ const Registration: React.FC = () => {
                 disabled={isSubmitting}
                 className="py-4 tracking-widest font-bold text-sm rounded-full"
               >
-                {isSubmitting ? 'PROCESSING...' : 'CONFIRM REGISTRATION →'}
+                {isSubmitting ? 'PROCESSING...' : 'COMPLETE REGISTRATION →'}
               </Button>
             </div>
           </form>

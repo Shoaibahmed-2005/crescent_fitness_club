@@ -94,78 +94,77 @@ const EventDetails: React.FC = () => {
                   <p className="text-gray-400">Categories and sub-events will be announced soon.</p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-1 gap-6 max-md:flex-row max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-6 hide-scrollbar">
                   {eventSubEvents.map(se => {
                     const isRegistered = user ? registrations.some(r => r.sub_event_id === se.id && r.user_id === user.id) : false;
                     const genderMismatch = user && se.gender_restriction !== 'GENERAL' && user.gender + '_ONLY' !== se.gender_restriction;
+                    const isFull = se.current_registrations !== undefined && se.current_registrations >= se.max_capacity;
                     
                     return (
-                      <div key={se.id} className="bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors">
-                        <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
-                          <div>
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-2xl font-bold text-white font-display">{se.title}</h3>
-                              <span className="px-2 py-1 text-[10px] font-bold tracking-widest bg-white/5 text-gray-400 rounded uppercase border border-white/10">
-                                {se.gender_restriction.replace('_', ' ')}
-                              </span>
+                      <div key={se.id} className="max-md:min-w-[85vw] max-md:snap-center shrink-0 bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors flex flex-col h-full justify-between">
+                        <div>
+                          <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-2xl font-bold text-white font-display">{se.title}</h3>
+                                <span className="px-2 py-1 text-[10px] font-bold tracking-widest bg-white/5 text-gray-400 rounded uppercase border border-white/10 shrink-0">
+                                  {se.gender_restriction.replace('_', ' ')}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-400 flex items-center gap-2">
+                                <MapPin className="w-3 h-3" /> {se.venue || event.venue}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-400 flex items-center gap-2">
-                              <MapPin className="w-3 h-3" /> {se.venue || event.venue}
-                            </p>
+                            
+                            <div className="shrink-0 text-left md:text-right">
+                              {isRegistered ? (
+                                <Button disabled variant="outline" className="w-full md:w-auto rounded-full border-green-500/50 text-green-400 bg-green-500/10">
+                                  ALREADY REGISTERED
+                                </Button>
+                              ) : (
+                                <Link to={`/events/${event.id}/register?subEvent=${se.id}`} onClick={(e) => {
+                                  if (isClosed || genderMismatch || isFull) {
+                                    e.preventDefault();
+                                  }
+                                }}>
+                                  <Button 
+                                    variant="primary" 
+                                    className="w-full md:w-auto rounded-full tracking-widest text-xs font-bold px-8 py-3"
+                                    disabled={isClosed || !!genderMismatch || isFull}
+                                  >
+                                    {isClosed ? 'CLOSED' 
+                                      : genderMismatch ? 'NOT ELIGIBLE (GENDER)' 
+                                      : isFull ? 'FULL' 
+                                      : 'REGISTER NOW'}
+                                  </Button>
+                                </Link>
+                              )}
+                              
+                              {se.current_registrations !== undefined && se.max_capacity - se.current_registrations > 0 && se.max_capacity - se.current_registrations <= 20 && (
+                                <p className="text-[10px] text-orange-400 font-bold tracking-widest uppercase mt-3">
+                                  🔥 Limited slots: {se.max_capacity - se.current_registrations} remaining
+                                </p>
+                              )}
+                            </div>
                           </div>
                           
-                          <div className="shrink-0 text-right">
-                            {isRegistered ? (
-                              <Button disabled variant="outline" className="w-full md:w-auto rounded-full border-green-500/50 text-green-400 bg-green-500/10">
-                                ALREADY REGISTERED
-                              </Button>
-                            ) : (
-                              <Link to={`/events/${event.id}/register?subEvent=${se.id}`} onClick={(e) => {
-                                if (isClosed || genderMismatch || !user || (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity)) {
-                                  e.preventDefault();
-                                  if (!user) navigate('/login');
-                                }
-                              }}>
-                                <Button 
-                                  variant="primary" 
-                                  className="w-full md:w-auto rounded-full tracking-widest text-xs font-bold px-8 py-3"
-                                  disabled={isClosed || !!genderMismatch || (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity)}
-                                >
-                                  {isClosed ? 'CLOSED' 
-                                    : genderMismatch ? 'NOT ELIGIBLE (GENDER)' 
-                                    : (se.current_registrations !== undefined && se.current_registrations >= se.max_capacity) ? 'FULL' 
-                                    : 'REGISTER NOW'}
-                                </Button>
-                              </Link>
-                            )}
-                            
-                            {!user && (
-                              <p className="text-[10px] text-gray-500 text-center mt-2">Sign in required</p>
-                            )}
-                            {user && se.current_registrations !== undefined && se.max_capacity - se.current_registrations > 0 && se.max_capacity - se.current_registrations <= 20 && (
-                              <p className="text-[10px] text-orange-400 font-bold tracking-widest uppercase mt-2">
-                                🔥 Limited slots: {se.max_capacity - se.current_registrations} remaining
-                              </p>
-                            )}
-                          </div>
+                          {se.image_url && (
+                            <div className="mb-6 rounded-xl overflow-hidden border border-white/5 aspect-video relative">
+                              <img src={se.image_url} alt={se.title} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          {se.description && (
+                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
+                              <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>
+                            </div>
+                          )}
+                          {se.rules && (
+                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5">
+                              <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Rules & Requirements</h4>
+                              <p className="text-sm text-gray-400 whitespace-pre-wrap">{se.rules}</p>
+                            </div>
+                          )}
                         </div>
-                        
-                        {se.image_url && (
-                          <div className="mb-6 rounded-xl overflow-hidden border border-white/5 aspect-video relative">
-                            <img src={se.image_url} alt={se.title} className="w-full h-full object-cover" />
-                          </div>
-                        )}
-                        {se.description && (
-                          <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
-                            <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>
-                          </div>
-                        )}
-                        {se.rules && (
-                          <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5">
-                            <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Rules & Requirements</h4>
-                            <p className="text-sm text-gray-400 whitespace-pre-wrap">{se.rules}</p>
-                          </div>
-                        )}
                       </div>
                     );
                   })}

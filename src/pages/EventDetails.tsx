@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Share2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useApp } from '../context/AppContext';
 import { cn } from '../components/Button';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const EventDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,11 +32,49 @@ const EventDetails: React.FC = () => {
   const isPastDeadline = event.registration_deadline ? new Date(event.registration_deadline) < new Date() : false;
   const isClosed = !event.is_active || isPastDeadline;
 
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Hero Entrance
+    gsap.from('.event-hero', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out'
+    });
+
+    // Sub-events reveal
+    gsap.utils.toArray('.sub-event-card').forEach((card: any) => {
+      gsap.from(card, {
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.out'
+      });
+    });
+
+    // Sidebar reveal
+    gsap.from('.event-sidebar', {
+      scrollTrigger: {
+        trigger: '.event-sidebar',
+        start: 'top 80%',
+      },
+      y: 30,
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power3.out'
+    });
+  }, { scope: container });
+
   return (
-    <div className="min-h-screen pt-24 pb-24">
+    <div ref={container} className="min-h-screen pt-24 pb-24">
       {/* Hero Header */}
       <div className="container mx-auto px-6 relative z-10 pt-8 mb-16">
-        <div className="flex flex-col lg:flex-row gap-12 items-end justify-between bg-[#140f0c]/80 p-8 md:p-12 rounded-3xl border border-white/5 backdrop-blur-xl">
+        <div className="event-hero flex flex-col lg:flex-row gap-12 items-end justify-between bg-[#140f0c]/80 p-8 md:p-12 rounded-3xl border border-white/5 backdrop-blur-xl">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter text-[#f4f1ea] uppercase leading-[0.9] font-display">
               {event.title}
@@ -100,7 +143,7 @@ const EventDetails: React.FC = () => {
                     const isFull = se.current_registrations !== undefined && se.current_registrations >= se.max_capacity;
                     
                     return (
-                      <div key={se.id} className="bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors">
+                      <div key={se.id} className="sub-event-card bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors">
                         <div>
                           <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
                             <div>
@@ -179,7 +222,7 @@ const EventDetails: React.FC = () => {
 
           {/* Sticky Sidebar */}
           <div className="lg:col-span-4">
-            <div className="sticky top-28 bg-[#1d1612] border border-white/5 rounded-3xl p-8 shadow-2xl">
+            <div className="event-sidebar sticky top-28 bg-[#1d1612] border border-white/5 rounded-3xl p-8 shadow-2xl">
               <h3 className="text-xl font-black uppercase tracking-widest text-white mb-2 font-display">EVENT STATUS</h3>
               <p className="text-xs text-gray-400 mb-8 font-medium">Platform verified event information.</p>
               

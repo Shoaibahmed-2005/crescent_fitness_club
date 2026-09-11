@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { AlertCircle, MapPin } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/Button';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import emailjs from '@emailjs/browser';
 
 const Registration: React.FC = () => {
@@ -29,10 +31,24 @@ const Registration: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
 
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Explicit safety scroll to top
+    window.scrollTo(0, 0);
+
+    gsap.from('.reg-form-container', {
+      y: 30,
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power3.out'
+    });
+  }, { scope: container });
+
   if (!event || !subEvent) {
     return (
-      <div className="min-h-screen flex items-center justify-center container mx-auto px-6">
-        <div className="text-center bg-[#1d1612] p-12 rounded-2xl border border-white/5">
+      <div ref={container} className="min-h-screen flex items-center justify-center container mx-auto px-6">
+        <div className="reg-form-container text-center bg-[#1d1612] p-12 rounded-2xl border border-white/5">
           <h2 className="text-3xl font-black mb-4 text-white font-display">Event Not Found</h2>
           <Button onClick={() => navigate('/events')} className="rounded-full">RETURN TO EVENTS</Button>
         </div>

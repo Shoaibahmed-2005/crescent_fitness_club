@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../components/Button';
 import EventCard from '../components/EventCard';
 import { useApp } from '../context/AppContext';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Home: React.FC = () => {
   const { events } = useApp();
@@ -14,30 +19,56 @@ const Home: React.FC = () => {
   // Get the featured event (e.g. Crescent Fitness Challenge)
   const featuredEvent = events.find(e => e.id === 'evt-001') || events[0];
 
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Hero Entrance Timeline
+    const tl = gsap.timeline();
+    tl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 })
+      .from('.hero-title-1', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+      .from('.hero-title-2', { y: 40, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+      .from('.hero-desc', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+      .from('.hero-btn', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6');
+
+    // General scroll reveals
+    gsap.utils.toArray('.scroll-reveal').forEach((elem: any) => {
+      gsap.from(elem, {
+        scrollTrigger: {
+          trigger: elem,
+          start: 'top 85%',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out'
+      });
+    });
+  }, { scope: container });
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div ref={container} className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-transparent">
         {/* Removed internal background image since the global one is used */}
         
         <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center mt-12">
-          <div className="flex items-center gap-4 mb-8">
+          <div className="hero-badge flex items-center gap-4 mb-8">
             <span className="w-8 h-[2px] bg-primary"></span>
             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary">YOUR CAMPUS WELLNESS COMMUNITY</span>
             <span className="w-8 h-[2px] bg-primary"></span>
           </div>
           
           <h1 className="text-5xl md:text-6xl lg:text-[6rem] leading-[0.9] font-black mb-6 tracking-tighter drop-shadow-2xl font-display">
-            <span className="block text-[#f4f1ea]">MOVE WELL.</span>
-            <span className="block text-primary">LIVE BETTER.</span>
+            <span className="hero-title-1 block text-[#f4f1ea]">MOVE WELL.</span>
+            <span className="hero-title-2 block text-primary">LIVE BETTER.</span>
           </h1>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-3xl mt-4">
-            <p className="text-base md:text-lg text-[#f4f1ea] font-medium tracking-wide max-w-md leading-relaxed">
+            <p className="hero-desc text-base md:text-lg text-[#f4f1ea] font-medium tracking-wide max-w-md leading-relaxed">
               A student-led space to move, learn about nutrition, meet people, and build habits that last.
             </p>
             
-            <Link to="/events" className="w-full sm:w-auto shrink-0 mt-4 md:mt-0">
+            <Link to="/events" className="hero-btn w-full sm:w-auto shrink-0 mt-4 md:mt-0">
               <Button size="lg" className="w-full sm:w-auto text-sm tracking-widest font-bold bg-primary hover:bg-primary/90 text-[#140f0c] rounded-full px-6 py-3 flex items-center justify-center gap-3">
                 EXPLORE EVENTS
                 <ArrowRight className="w-4 h-4" />
@@ -49,7 +80,7 @@ const Home: React.FC = () => {
 
       {/* Featured Event Section */}
       {featuredEvent && (
-        <section className="py-24 relative z-10 border-t border-white/5 bg-[#080808]">
+        <section className="scroll-reveal py-24 relative z-10 border-t border-white/5 bg-[#080808]">
           <div className="container mx-auto px-6">
             <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-8 flex items-center gap-2">
               <span className="w-8 h-[1px] bg-primary"></span> THE NEXT CHALLENGE
@@ -96,7 +127,7 @@ const Home: React.FC = () => {
 
 
       {/* Upcoming Events Section */}
-      <section className="py-32 relative z-10">
+      <section className="scroll-reveal py-32 relative z-10">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
@@ -119,7 +150,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* About CFC Section */}
-      <section className="py-24 bg-[#0a0a0a] border-y border-white/5 relative z-10">
+      <section className="scroll-reveal py-24 bg-[#0a0a0a] border-y border-white/5 relative z-10">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 uppercase text-glow">BUILT TO MOVE</h2>
@@ -146,7 +177,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden z-10">
+      <section className="scroll-reveal py-24 relative overflow-hidden z-10">
         <div className="absolute inset-0 bg-primary/5 border-t border-primary/20" />
         <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
           <h2 className="text-4xl md:text-5xl font-black mb-6 uppercase tracking-tighter">READY TO JOIN?</h2>

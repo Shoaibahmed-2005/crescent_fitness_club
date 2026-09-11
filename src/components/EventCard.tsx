@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import type { Event } from '../types';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from './Button';
 import { cn } from './Button';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface EventCardProps {
   event: Event;
@@ -11,14 +16,33 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
   const isPastDeadline = event.registration_deadline ? new Date(event.registration_deadline) < new Date() : false;
   const isClosed = !event.is_active || isPastDeadline;
 
+  useGSAP(() => {
+    if (cardRef.current) {
+      gsap.from(cardRef.current, {
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: 'top 90%',
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.out'
+      });
+    }
+  }, { scope: cardRef });
+
   return (
-    <div className={cn(
-      "group flex flex-col bg-[#140f0c] rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1 border border-white/5 hover:border-primary/50 shadow-lg",
-      className
-    )}>
+    <div 
+      ref={cardRef}
+      className={cn(
+        "group flex flex-col bg-[#140f0c] rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1 border border-white/5 hover:border-primary/50 shadow-lg",
+        className
+      )}
+    >
       {/* Poster */}
       <div className="relative h-64 overflow-hidden">
         <img 

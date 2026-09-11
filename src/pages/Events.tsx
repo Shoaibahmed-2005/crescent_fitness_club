@@ -1,11 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Search } from 'lucide-react';
 import EventCard from '../components/EventCard';
 import { useApp } from '../context/AppContext';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Events: React.FC = () => {
   const { events } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline();
+    tl.from('.events-header', { y: 20, opacity: 0, duration: 0.6, ease: 'power3.out' })
+      .from('.events-filter', { y: 20, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+  }, { scope: container });
 
   const filteredEvents = useMemo(() => {
     let result = [...events];
@@ -22,16 +34,16 @@ const Events: React.FC = () => {
   }, [events, searchQuery]);
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div ref={container} className="min-h-screen pt-32 pb-24">
       <div className="container mx-auto px-6 relative z-10">
-        <div className="mb-12 text-center md:text-left">
+        <div className="events-header mb-12 text-center md:text-left">
           <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter text-[#f4f1ea] uppercase font-display">
             EXPLORE FITNESS EVENTS
           </h1>
           <p className="text-lg text-gray-400">Find your next challenge.</p>
         </div>
 
-        <div className="mb-8 relative max-w-md">
+        <div className="events-filter mb-8 relative max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input 
             type="text" 

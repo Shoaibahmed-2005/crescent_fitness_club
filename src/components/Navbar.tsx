@@ -81,12 +81,6 @@ const Navbar: React.FC = () => {
             <Link to="/wellness" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">WELLNESS</Link>
             <Link to="/events" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">EVENTS</Link>
             <Link to="/founders" className="text-xs font-bold tracking-widest hover:text-primary transition-colors text-white uppercase">FOUNDERS</Link>
-            <span className={cn(
-              "text-xs font-bold tracking-widest transition-colors uppercase",
-              isRegisterRoute ? "text-primary" : "text-gray-400"
-            )}>
-              REGISTER
-            </span>
           </nav>
           
           {/* Right */}
@@ -94,13 +88,6 @@ const Navbar: React.FC = () => {
             <Button variant="outline" className="hidden md:flex gap-2 text-xs h-10 px-4 rounded-full border-white/10 bg-[#111]">
               <Share2 className="w-4 h-4" /> SHARE
             </Button>
-            {!isRegisterRoute && (
-              <Link to={`/events/${eventId}/register`}>
-                <Button variant="primary" className="text-xs h-10 px-6 rounded-full tracking-widest font-bold">
-                  REGISTER NOW →
-                </Button>
-              </Link>
-            )}
           </div>
         </div>
       </header>

@@ -97,7 +97,6 @@ const EventDetails: React.FC = () => {
                 <div className="space-y-6">
                   {eventSubEvents.map(se => {
                     const isRegistered = user ? registrations.some(r => r.sub_event_id === se.id && r.user_id === user.id) : false;
-                    const genderMismatch = user && se.gender_restriction !== 'GENERAL' && user.gender + '_ONLY' !== se.gender_restriction;
                     const isFull = se.current_registrations !== undefined && se.current_registrations >= se.max_capacity;
                     
                     return (
@@ -107,9 +106,11 @@ const EventDetails: React.FC = () => {
                             <div>
                               <div className="flex items-center gap-3 mb-2">
                                 <h3 className="text-2xl font-bold text-white font-display">{se.title}</h3>
-                                <span className="px-2 py-1 text-[10px] font-bold tracking-widest bg-white/5 text-gray-400 rounded uppercase border border-white/10 shrink-0">
-                                  {se.gender_restriction.replace('_', ' ')}
-                                </span>
+                                {se.gender_restriction !== 'GENERAL' && (
+                                  <span className="px-2 py-1 text-[10px] font-bold tracking-widest bg-white/5 text-gray-400 rounded uppercase border border-white/10 shrink-0">
+                                    {se.gender_restriction.replace('_', ' ')}
+                                  </span>
+                                )}
                               </div>
                               <p className="text-sm text-gray-400 flex items-center gap-2">
                                 <MapPin className="w-3 h-3" /> {se.venue || event.venue}
@@ -150,17 +151,16 @@ const EventDetails: React.FC = () => {
                                 </Button>
                               ) : (
                                 <Link to={`/events/${event.id}/register?subEvent=${se.id}`} onClick={(e) => {
-                                  if (isClosed || genderMismatch || isFull) {
+                                  if (isClosed || isFull) {
                                     e.preventDefault();
                                   }
                                 }}>
                                   <Button 
                                     variant="primary" 
                                     className="w-full md:w-auto rounded-full tracking-widest text-xs font-bold px-8 py-3"
-                                    disabled={isClosed || !!genderMismatch || isFull}
+                                    disabled={isClosed || isFull}
                                   >
                                     {isClosed ? 'CLOSED' 
-                                      : genderMismatch ? 'NOT ELIGIBLE (GENDER)' 
                                       : isFull ? 'FULL' 
                                       : 'REGISTER NOW'}
                                   </Button>

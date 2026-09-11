@@ -20,6 +20,8 @@ const AdminDashboard: React.FC = () => {
   const [filterSubEventId, setFilterSubEventId] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
 
+  const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
+
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [newEvent, setNewEvent] = useState({ title: '', description: '', venue: '', deadline: '' });
@@ -518,6 +520,7 @@ const AdminDashboard: React.FC = () => {
                       <th className="px-6 py-4">Contact</th>
                       <th className="px-6 py-4">Event Details</th>
                       <th className="px-6 py-4">Status & Date</th>
+                      <th className="px-6 py-4">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 bg-[#1d1612]">
@@ -575,12 +578,22 @@ const AdminDashboard: React.FC = () => {
                               {new Date(reg.created_at).toLocaleString()}
                             </p>
                           </td>
+                          <td className="px-6 py-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-[10px] font-bold tracking-widest px-4 py-2"
+                              onClick={() => setSelectedRegistration(reg)}
+                            >
+                              VIEW DETAILS
+                            </Button>
+                          </td>
                         </tr>
                       );
                     })}
                     {allRegistrations.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                           No registrations found.
                         </td>
                       </tr>
@@ -592,6 +605,143 @@ const AdminDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* View Details Modal */}
+      {selectedRegistration && (() => {
+        const reg = selectedRegistration;
+        const se = subEvents.find(s => s.id === reg.sub_event_id);
+        const evt = events.find(e => e.id === se?.event_id);
+        const participant = profiles.find(p => p.id === reg.user_id);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-black/60">
+            <div className="bg-[#140f0c] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl max-h-full flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#1d1612]">
+                <h2 className="text-xl md:text-2xl font-black uppercase tracking-widest text-white font-display flex items-center gap-3">
+                  <ShieldCheck className="text-primary w-6 h-6" /> Student Registration Details
+                </h2>
+                <button onClick={() => setSelectedRegistration(null)} className="text-gray-400 hover:text-white p-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto space-y-8 bg-[#140f0c] flex-grow">
+                {/* Status Banner */}
+                <div className={`p-4 rounded-xl border flex items-center justify-between ${reg.status === 'CONFIRMED' ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                  <div>
+                    <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">REGISTRATION STATUS</p>
+                    <p className={`text-lg font-bold tracking-widest uppercase ${reg.status === 'CONFIRMED' ? 'text-green-400' : 'text-red-400'}`}>{reg.status}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">REGISTRATION ID</p>
+                    <p className="text-lg font-mono font-bold text-primary">{(reg as any).friendly_id || reg.id.split('-')[0].toUpperCase()}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Personal Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Personal Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Full Name</p>
+                        <p className="text-white font-medium">{participant?.name || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Student ID / Register Number</p>
+                        <p className="text-white font-medium">{participant?.registration_number || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Email Address</p>
+                        <p className="text-white font-medium">{participant?.email || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Phone Number</p>
+                        <p className="text-white font-medium">{participant?.phone || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Gender</p>
+                        <p className="text-white font-medium">{participant?.gender || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Academic Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Academic Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Department</p>
+                        <p className="text-gray-400 italic">Not provided</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Course / Program</p>
+                        <p className="text-gray-400 italic">Not provided</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Year / Section</p>
+                        <p className="text-gray-400 italic">Not provided</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">College / Institution</p>
+                        <p className="text-white font-medium">Crescent Institute of Science & Technology</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Event Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Event Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Event Name</p>
+                        <p className="text-white font-medium">{evt?.title || 'Unknown Event'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Event Category / Sub-Event</p>
+                        <p className="text-white font-medium">{se?.title || 'Unknown Sub-event'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Venue</p>
+                        <p className="text-white font-medium">{se?.venue || evt?.venue || 'TBA'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Registration Timestamp</p>
+                        <p className="text-white font-medium">{new Date(reg.created_at).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Account Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">System Profile ID</p>
+                        <p className="text-white font-mono text-xs">{participant?.id || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Account Creation Date</p>
+                        <p className="text-white font-medium">{participant ? new Date(participant.created_at).toLocaleString() : 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">System Role</p>
+                        <p className="text-white font-medium">{participant?.role || 'STUDENT'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-white/5 bg-[#1d1612] flex justify-end">
+                <Button onClick={() => setSelectedRegistration(null)} className="tracking-widest font-bold">
+                  BACK TO REGISTRATIONS
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

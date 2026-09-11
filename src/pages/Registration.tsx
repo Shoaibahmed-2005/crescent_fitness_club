@@ -23,7 +23,9 @@ const Registration: React.FC = () => {
     email: '',
     phone: '',
     gender: 'MALE',
-    registration_number: ''
+    registration_number: '',
+    department: '',
+    year: ''
   });
 
   const [error, setError] = useState('');
@@ -42,10 +44,12 @@ const Registration: React.FC = () => {
   }
 
   const validateForm = () => {
-    const { name, email, phone, gender, registration_number } = formData;
+    const { name, email, phone, gender, registration_number, department, year } = formData;
     
     if (!name.trim()) return "Full Name is required.";
     if (!gender) return "Gender is required.";
+    if (!department) return "Department is required.";
+    if (!year) return "Year is required.";
     
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phone.trim())) return "Phone number must be exactly 10 digits.";
@@ -83,6 +87,8 @@ const Registration: React.FC = () => {
         p_gender: formData.gender,
         p_phone: formData.phone.trim(),
         p_reg_number: formData.registration_number.trim(),
+        p_department: formData.department,
+        p_year: formData.year,
         p_sub_event_id: subEvent.id
       });
 
@@ -135,6 +141,11 @@ const Registration: React.FC = () => {
           </div>
 
           <div className="space-y-6 border-t border-white/5 pt-6">
+            <div className="text-center mb-6">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">REGISTRATION ID</p>
+              <p className="text-2xl font-black text-primary uppercase font-display tracking-widest">{successData.friendly_id || successData.registration_id.split('-')[0]}</p>
+            </div>
+            
             <div>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">EVENT</p>
               <p className="text-lg font-bold text-white uppercase">{event.title}</p>
@@ -159,12 +170,16 @@ const Registration: React.FC = () => {
                 <p className="text-sm font-medium text-white">{successData.profile.phone}</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">GENDER</p>
-                <p className="text-sm font-medium text-white">{successData.profile.gender}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">DEPARTMENT</p>
+                <p className="text-sm font-medium text-white">{successData.profile.department}</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
-                <p className="text-sm font-medium text-white">{user.phone || 'N/A'}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">YEAR</p>
+                <p className="text-sm font-medium text-white">{successData.profile.year}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">GENDER</p>
+                <p className="text-sm font-medium text-white">{successData.profile.gender}</p>
               </div>
             </div>
             <div className="pt-4 border-t border-white/5 flex items-center justify-between">
@@ -254,6 +269,7 @@ const Registration: React.FC = () => {
                 />
               </div>
 
+              <div>
                 <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">RRN (12 Digits)</label>
                 <input 
                   type="text" 
@@ -263,6 +279,42 @@ const Registration: React.FC = () => {
                   onChange={(e) => setFormData({...formData, registration_number: e.target.value})}
                   className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Department</label>
+                <select 
+                  required
+                  value={formData.department}
+                  onChange={(e) => setFormData({...formData, department: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                >
+                  <option value="" disabled>Select Department</option>
+                  <option value="CSE">CSE</option>
+                  <option value="IT">IT</option>
+                  <option value="ECE">ECE</option>
+                  <option value="EEE">EEE</option>
+                  <option value="Mechanical">Mechanical</option>
+                  <option value="Civil">Civil</option>
+                  <option value="Biotechnology">Biotechnology</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Year</label>
+                <select 
+                  required
+                  value={formData.year}
+                  onChange={(e) => setFormData({...formData, year: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                >
+                  <option value="" disabled>Select Year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                </select>
               </div>
 
               <div>

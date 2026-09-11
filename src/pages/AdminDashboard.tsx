@@ -15,6 +15,11 @@ const AdminDashboard: React.FC = () => {
   const [subEvents, setSubEvents] = useState<SubEvent[]>([]);
   const [profiles, setProfiles] = useState<User[]>([]);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterEventId, setFilterEventId] = useState('ALL');
+  const [filterSubEventId, setFilterSubEventId] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState('ALL');
+
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [newEvent, setNewEvent] = useState({ title: '', description: '', venue: '', deadline: '' });
@@ -35,7 +40,7 @@ const AdminDashboard: React.FC = () => {
     const [eventsRes, subEventsRes, regRes, profilesRes] = await Promise.all([
       supabase.from('events').select('*').order('created_at', { ascending: false }),
       supabase.from('sub_events').select('*'),
-      supabase.from('registrations').select('*'),
+      supabase.from('registrations').select('*, friendly_id').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*')
     ]);
 
@@ -432,52 +437,139 @@ const AdminDashboard: React.FC = () => {
           )}
 
           {activeTab === 'REGISTRATIONS' && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#140f0c] text-gray-400 text-xs uppercase tracking-wider">
-                  <tr>
-                    <th className="px-6 py-4 rounded-tl-lg">Participant</th>
-                    <th className="px-6 py-4">Reg No.</th>
-                    <th className="px-6 py-4">Event & Sub-Event</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 rounded-tr-lg">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {allRegistrations.map(reg => {
-                    const se = subEvents.find(s => s.id === reg.sub_event_id);
-                    const evt = events.find(e => e.id === se?.event_id);
-                    const participant = profiles.find(p => p.id === reg.user_id);
-                    
-                    return (
-                      <tr key={reg.id} className="hover:bg-white/[0.02] transition-colors text-gray-300">
-                        <td className="px-6 py-4">
-                          <p className="font-bold text-white">{participant?.name || 'Unknown'}</p>
-                          <p className="text-xs text-gray-500">{participant?.email}</p>
-                        </td>
-                        <td className="px-6 py-4 font-mono text-xs">{participant?.registration_number || 'N/A'}</td>
-                        <td className="px-6 py-4">
-                          <p className="font-medium text-white">{evt?.title || 'Unknown Event'}</p>
-                          <p className="text-xs text-primary">{se?.title}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`text-[10px] px-2 py-1 rounded font-bold tracking-wider ${reg.status === 'CONFIRMED' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                            {reg.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-xs text-gray-500">{new Date(reg.created_at).toLocaleDateString()}</td>
-                      </tr>
-                    );
-                  })}
-                  {allRegistrations.length === 0 && (
+            <div className="space-y-6">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 bg-[#140f0c] p-6 rounded-xl border border-white/5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                  <div>
+                    <label className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2 block">Search</label>
+                    <input 
+                      type="text" 
+                      placeholder="Name, ID, Email, RRN..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-[#1d1612] border border-white/10 rounded-lg px-4 py-2 text-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2 block">Event</label>
+                    <select 
+                      value={filterEventId} 
+                      onChange={(e) => { setFilterEventId(e.target.value); setFilterSubEventId('ALL'); }}
+                      className="w-full bg-[#1d1612] border border-white/10 rounded-lg px-4 py-2 text-white text-sm appearance-none"
+                    >
+                      <option value="ALL">All Events</option>
+                      {events.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2 block">Sub-Event</label>
+                    <select 
+                      value={filterSubEventId} 
+                      onChange={(e) => setFilterSubEventId(e.target.value)}
+                      className="w-full bg-[#1d1612] border border-white/10 rounded-lg px-4 py-2 text-white text-sm appearance-none"
+                      disabled={filterEventId === 'ALL'}
+                    >
+                      <option value="ALL">All Sub-Events</option>
+                      {subEvents.filter(se => se.event_id === filterEventId).map(se => <option key={se.id} value={se.id}>{se.title}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2 block">Status</label>
+                    <select 
+                      value={filterStatus} 
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="w-full bg-[#1d1612] border border-white/10 rounded-lg px-4 py-2 text-white text-sm appearance-none"
+                    >
+                      <option value="ALL">All Statuses</option>
+                      <option value="CONFIRMED">Confirmed</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+                <Button onClick={fetchAdminData} variant="outline" className="shrink-0 h-[42px] px-6 text-xs font-bold tracking-widest">
+                  REFRESH
+                </Button>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-white/5">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-[#140f0c] text-gray-400 text-[10px] uppercase tracking-wider font-bold">
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                        No registrations found.
-                      </td>
+                      <th className="px-6 py-4">Reg ID</th>
+                      <th className="px-6 py-4">Participant</th>
+                      <th className="px-6 py-4">Contact</th>
+                      <th className="px-6 py-4">Event Details</th>
+                      <th className="px-6 py-4">Status & Date</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 bg-[#1d1612]">
+                    {allRegistrations.filter(reg => {
+                      const se = subEvents.find(s => s.id === reg.sub_event_id);
+                      const evt = events.find(e => e.id === se?.event_id);
+                      const participant = profiles.find(p => p.id === reg.user_id);
+                      
+                      if (filterStatus !== 'ALL' && reg.status !== filterStatus) return false;
+                      if (filterEventId !== 'ALL' && evt?.id !== filterEventId) return false;
+                      if (filterSubEventId !== 'ALL' && se?.id !== filterSubEventId) return false;
+                      
+                      if (searchQuery) {
+                        const q = searchQuery.toLowerCase();
+                        const matchName = participant?.name?.toLowerCase().includes(q);
+                        const matchEmail = participant?.email?.toLowerCase().includes(q);
+                        const matchPhone = participant?.phone?.includes(q);
+                        const matchRRN = participant?.registration_number?.includes(q);
+                        const matchFriendlyId = (reg as any).friendly_id?.toLowerCase().includes(q);
+                        const matchRegId = reg.id.toLowerCase().includes(q);
+                        
+                        if (!matchName && !matchEmail && !matchPhone && !matchRRN && !matchFriendlyId && !matchRegId) return false;
+                      }
+                      
+                      return true;
+                    }).map(reg => {
+                      const se = subEvents.find(s => s.id === reg.sub_event_id);
+                      const evt = events.find(e => e.id === se?.event_id);
+                      const participant = profiles.find(p => p.id === reg.user_id);
+                      
+                      return (
+                        <tr key={reg.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="font-mono text-xs font-bold text-primary">{(reg as any).friendly_id || reg.id.split('-')[0].toUpperCase()}</p>
+                            <p className="font-mono text-[10px] text-gray-500 mt-1" title={reg.id}>UUID</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-bold text-white">{participant?.name || 'Unknown'}</p>
+                            <p className="text-xs text-gray-400 mt-1">RRN: {participant?.registration_number || 'N/A'}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-sm text-gray-300">{participant?.phone}</p>
+                            <p className="text-xs text-gray-500 mt-1">{participant?.email}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-bold text-white max-w-[200px] truncate" title={evt?.title}>{evt?.title || 'Unknown Event'}</p>
+                            <p className="text-xs text-primary mt-1 max-w-[200px] truncate" title={se?.title}>{se?.title}</p>
+                            <p className="text-[10px] text-gray-500 mt-1">{se?.venue || evt?.venue || 'TBA'}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-block text-[10px] px-2 py-1 rounded font-bold tracking-wider mb-2 ${reg.status === 'CONFIRMED' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                              {reg.status}
+                            </span>
+                            <p className="text-[10px] text-gray-500 font-mono">
+                              {new Date(reg.created_at).toLocaleString()}
+                            </p>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {allRegistrations.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                          No registrations found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

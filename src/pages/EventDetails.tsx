@@ -115,8 +115,35 @@ const EventDetails: React.FC = () => {
                                 <MapPin className="w-3 h-3" /> {se.venue || event.venue}
                               </p>
                             </div>
+                          </div>
+                          
+                          {se.image_url && (
+                            <div className="mb-6 rounded-xl overflow-hidden border border-white/5 aspect-video relative">
+                              <img src={se.image_url} alt={se.title} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          {se.description && (
+                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
+                              <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>
+                            </div>
+                          )}
+                          {se.rules && (
+                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-6">
+                              <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Rules & Requirements</h4>
+                              <p className="text-sm text-gray-400 whitespace-pre-wrap">{se.rules}</p>
+                            </div>
+                          )}
+                          
+                          <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="w-full md:w-auto">
+                              {se.current_registrations !== undefined && se.max_capacity - se.current_registrations > 0 && se.max_capacity - se.current_registrations <= 20 && (
+                                <p className="text-[10px] text-orange-400 font-bold tracking-widest uppercase text-center md:text-left mb-2 md:mb-0">
+                                  🔥 Limited slots: {se.max_capacity - se.current_registrations} remaining
+                                </p>
+                              )}
+                            </div>
                             
-                            <div className="shrink-0 text-left md:text-right">
+                            <div className="w-full md:w-auto shrink-0">
                               {isRegistered ? (
                                 <Button disabled variant="outline" className="w-full md:w-auto rounded-full border-green-500/50 text-green-400 bg-green-500/10">
                                   ALREADY REGISTERED
@@ -139,31 +166,8 @@ const EventDetails: React.FC = () => {
                                   </Button>
                                 </Link>
                               )}
-                              
-                              {se.current_registrations !== undefined && se.max_capacity - se.current_registrations > 0 && se.max_capacity - se.current_registrations <= 20 && (
-                                <p className="text-[10px] text-orange-400 font-bold tracking-widest uppercase mt-3">
-                                  🔥 Limited slots: {se.max_capacity - se.current_registrations} remaining
-                                </p>
-                              )}
                             </div>
                           </div>
-                          
-                          {se.image_url && (
-                            <div className="mb-6 rounded-xl overflow-hidden border border-white/5 aspect-video relative">
-                              <img src={se.image_url} alt={se.title} className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                          {se.description && (
-                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5 mb-4">
-                              <p className="text-sm text-gray-300 whitespace-pre-wrap">{se.description}</p>
-                            </div>
-                          )}
-                          {se.rules && (
-                            <div className="bg-[#1d1612] p-4 rounded-xl border border-white/5">
-                              <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Rules & Requirements</h4>
-                              <p className="text-sm text-gray-400 whitespace-pre-wrap">{se.rules}</p>
-                            </div>
-                          )}
                         </div>
                       </div>
                     );

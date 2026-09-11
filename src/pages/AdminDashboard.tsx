@@ -672,15 +672,11 @@ const AdminDashboard: React.FC = () => {
                     <div className="space-y-3">
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Department</p>
-                        <p className="text-gray-400 italic">Not provided</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Course / Program</p>
-                        <p className="text-gray-400 italic">Not provided</p>
+                        <p className={`font-medium ${participant?.department ? 'text-white' : 'text-gray-400 italic'}`}>{participant?.department || 'Not provided'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Year / Section</p>
-                        <p className="text-gray-400 italic">Not provided</p>
+                        <p className={`font-medium ${participant?.year ? 'text-white' : 'text-gray-400 italic'}`}>{participant?.year || 'Not provided'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">College / Institution</p>

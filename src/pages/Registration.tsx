@@ -24,7 +24,9 @@ const Registration: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    registration_number: ''
+    registration_number: '',
+    department: '',
+    year: ''
   });
 
   const [error, setError] = useState('');
@@ -57,9 +59,11 @@ const Registration: React.FC = () => {
   }
 
   const validateForm = () => {
-    const { name, email, phone, registration_number } = formData;
+    const { name, email, phone, registration_number, department, year } = formData;
     
     if (!name.trim()) return "Full Name is required.";
+    if (!department.trim()) return "Department is required.";
+    if (!year.trim()) return "Year is required.";
     
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phone.trim())) return "Phone number must be exactly 10 digits.";
@@ -97,8 +101,8 @@ const Registration: React.FC = () => {
         p_gender: null,
         p_phone: formData.phone.trim(),
         p_reg_number: formData.registration_number.trim(),
-        p_department: null,
-        p_year: null,
+        p_department: formData.department.trim(),
+        p_year: formData.year.trim(),
         p_sub_event_id: subEvent.id
       });
 
@@ -275,6 +279,30 @@ const Registration: React.FC = () => {
                   placeholder="Registration Number" 
                   value={formData.registration_number}
                   onChange={(e) => setFormData({...formData, registration_number: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Department</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. B.Tech CSE" 
+                  value={formData.department}
+                  onChange={(e) => setFormData({...formData, department: e.target.value})}
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Year / Section</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. 2nd Year 'A'" 
+                  value={formData.year}
+                  onChange={(e) => setFormData({...formData, year: e.target.value})}
                   className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 />
               </div>

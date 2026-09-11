@@ -8,6 +8,8 @@ export interface User {
   gender: 'MALE' | 'FEMALE' | 'OTHER';
   phone?: string;
   registration_number?: string;
+  department?: string;
+  year?: string;
   created_at?: string;
 }
 

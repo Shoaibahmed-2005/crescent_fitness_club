@@ -94,14 +94,14 @@ const EventDetails: React.FC = () => {
                   <p className="text-gray-400">Categories and sub-events will be announced soon.</p>
                 </div>
               ) : (
-                <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-1 gap-6 max-md:flex-row max-md:overflow-x-auto max-md:snap-x max-md:snap-mandatory max-md:pb-6 hide-scrollbar">
+                <div className="space-y-6">
                   {eventSubEvents.map(se => {
                     const isRegistered = user ? registrations.some(r => r.sub_event_id === se.id && r.user_id === user.id) : false;
                     const genderMismatch = user && se.gender_restriction !== 'GENERAL' && user.gender + '_ONLY' !== se.gender_restriction;
                     const isFull = se.current_registrations !== undefined && se.current_registrations >= se.max_capacity;
                     
                     return (
-                      <div key={se.id} className="max-md:min-w-[85vw] max-md:snap-center shrink-0 bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors flex flex-col h-full justify-between">
+                      <div key={se.id} className="bg-[#140f0c] border border-white/5 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-colors">
                         <div>
                           <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
                             <div>

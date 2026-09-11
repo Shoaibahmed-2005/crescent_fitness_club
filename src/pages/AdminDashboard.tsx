@@ -71,7 +71,11 @@ const AdminDashboard: React.FC = () => {
       const fileExt = eventImage.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const { data, error } = await supabase.storage.from('event-images').upload(fileName, eventImage);
-      if (!error && data) {
+      if (error) {
+        alert("Image upload failed: " + error.message);
+        return;
+      }
+      if (data) {
         const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
         imageUrl = publicUrl;
       }
@@ -103,7 +107,11 @@ const AdminDashboard: React.FC = () => {
       const fileExt = eventImage.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const { data, error } = await supabase.storage.from('event-images').upload(fileName, eventImage);
-      if (!error && data) {
+      if (error) {
+        alert("Image upload failed: " + error.message);
+        return;
+      }
+      if (data) {
         const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
         imageUrl = publicUrl;
       }
@@ -143,7 +151,11 @@ const AdminDashboard: React.FC = () => {
       const fileExt = subEventImage.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const { data, error } = await supabase.storage.from('event-images').upload(fileName, subEventImage);
-      if (!error && data) {
+      if (error) {
+        alert("Image upload failed: " + error.message);
+        return;
+      }
+      if (data) {
         const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
         imageUrl = publicUrl;
       }
@@ -177,7 +189,11 @@ const AdminDashboard: React.FC = () => {
       const fileExt = subEventImage.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const { data, error } = await supabase.storage.from('event-images').upload(fileName, subEventImage);
-      if (!error && data) {
+      if (error) {
+        alert("Image upload failed: " + error.message);
+        return;
+      }
+      if (data) {
         const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(data.path);
         imageUrl = publicUrl;
       }
@@ -212,6 +228,7 @@ const AdminDashboard: React.FC = () => {
   const startEditEvent = (ev: Event) => {
     setEditingEventId(ev.id);
     setIsCreatingEvent(false);
+    setEventImage(null);
     setNewEvent({
       title: ev.title,
       description: ev.description || '',
@@ -223,6 +240,7 @@ const AdminDashboard: React.FC = () => {
   const startEditSubEvent = (se: SubEvent) => {
     setEditingSubEventId(se.id);
     setIsCreatingSubEvent(null);
+    setSubEventImage(null);
     setNewSubEvent({
       title: se.title,
       gender_restriction: se.gender_restriction,

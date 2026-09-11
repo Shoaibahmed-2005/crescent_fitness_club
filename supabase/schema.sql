@@ -34,11 +34,14 @@ BEGIN
   SELECT COUNT(*) INTO admin_count FROM public.profiles WHERE role = 'ADMIN';
   
   -- Insert into public.profiles
-  INSERT INTO public.profiles (id, email, name, role)
+  INSERT INTO public.profiles (id, email, name, gender, phone, registration_number, role)
   VALUES (
     NEW.id, 
     NEW.email, 
     NEW.raw_user_meta_data->>'name',
+    NEW.raw_user_meta_data->>'gender',
+    NEW.raw_user_meta_data->>'phone',
+    NEW.raw_user_meta_data->>'registration_number',
     CASE 
       WHEN admin_count < 3 THEN 'ADMIN'
       ELSE 'STUDENT'

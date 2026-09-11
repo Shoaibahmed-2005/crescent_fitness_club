@@ -122,9 +122,13 @@ const Registration: React.FC = () => {
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">RRN</p>
                 <p className="text-sm font-medium text-white">{user.registration_number}</p>
               </div>
-              <div className="col-span-2">
+              <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">EMAIL</p>
                 <p className="text-sm font-medium text-white">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
+                <p className="text-sm font-medium text-white">{user.phone || 'N/A'}</p>
               </div>
             </div>
             <div className="pt-4 border-t border-white/5 flex items-center gap-3">
@@ -186,6 +190,10 @@ const Registration: React.FC = () => {
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">EMAIL</p>
                 <p className="text-sm font-medium text-white">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">PHONE</p>
+                <p className="text-sm font-medium text-white">{user.phone || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">GENDER</p>

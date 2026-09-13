@@ -42,7 +42,7 @@ const AdminDashboard: React.FC = () => {
     const [eventsRes, subEventsRes, regRes, profilesRes] = await Promise.all([
       supabase.from('events').select('*').order('created_at', { ascending: false }),
       supabase.from('sub_events').select('*'),
-      supabase.from('registrations').select('*, friendly_id').order('created_at', { ascending: false }),
+      supabase.from('registrations').select('*').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*')
     ]);
 

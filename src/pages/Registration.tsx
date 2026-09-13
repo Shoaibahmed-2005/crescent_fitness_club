@@ -116,7 +116,7 @@ const Registration: React.FC = () => {
       // Send Confirmation Email
       try {
         await emailjs.send(
-          'service_a3wmkjr',
+          'service_gzoat9l',
           'template_2kgm703',
           {
             to_name: data.profile.name,

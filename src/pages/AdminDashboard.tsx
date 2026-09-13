@@ -639,8 +639,8 @@ const AdminDashboard: React.FC = () => {
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-black/60">
-            <div className="bg-[#140f0c] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl max-h-full flex flex-col overflow-hidden">
-              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#1d1612]">
+            <div className="bg-[#140f0c] border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#1d1612] shrink-0">
                 <h2 className="text-xl md:text-2xl font-black uppercase tracking-widest text-white font-display flex items-center gap-3">
                   <ShieldCheck className="text-primary w-6 h-6" /> Student Registration Details
                 </h2>
@@ -753,7 +753,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-white/5 bg-[#1d1612] flex justify-end">
+              <div className="p-6 border-t border-white/5 bg-[#1d1612] flex justify-end gap-4 shrink-0">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleDeleteRegistration(reg.id)} 
+                  className="border-red-500/20 text-red-500 hover:bg-red-500/10 tracking-widest font-bold"
+                >
+                  DELETE
+                </Button>
                 <Button onClick={() => setSelectedRegistration(null)} className="tracking-widest font-bold">
                   BACK TO REGISTRATIONS
                 </Button>

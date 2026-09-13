@@ -672,6 +672,10 @@ const AdminDashboard: React.FC = () => {
                         <p className="text-white font-medium">{participant?.name || 'Not provided'}</p>
                       </div>
                       <div>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Registered Game</p>
+                        <p className="text-white font-medium">{se?.title || 'Unknown Game'}</p>
+                      </div>
+                      <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Register Number (RRN)</p>
                         <p className="text-white font-medium">{participant?.registration_number || 'Not provided'}</p>
                       </div>

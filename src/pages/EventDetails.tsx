@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Calendar, MapPin, Share2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useApp } from '../context/AppContext';
@@ -14,9 +14,17 @@ const EventDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { events, subEvents, registrations, user } = useApp();
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get('category');
   
   const event = events.find(e => e.id === id);
-  const eventSubEvents = subEvents.filter(se => se.event_id === id);
+  let eventSubEvents = subEvents.filter(se => se.event_id === id);
+
+  if (category === 'male') {
+    eventSubEvents = eventSubEvents.filter(se => se.gender_restriction === 'MALE_ONLY' || se.gender_restriction === 'GENERAL');
+  } else if (category === 'female') {
+    eventSubEvents = eventSubEvents.filter(se => se.gender_restriction === 'FEMALE_ONLY' || se.gender_restriction === 'GENERAL');
+  }
 
   if (!event) {
     return (
@@ -146,9 +154,22 @@ const EventDetails: React.FC = () => {
 
             {/* Sub Events / Competitions */}
             <div id="sub-events">
-              <h2 className="text-3xl font-black tracking-widest uppercase mb-8 flex items-center gap-3 font-display text-white">
-                <span className="w-2 h-8 bg-primary rounded-full"></span> EVENT CATEGORIES
-              </h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+                <h2 className="text-3xl font-black tracking-widest uppercase flex items-center gap-3 font-display text-white">
+                  <span className="w-2 h-8 bg-primary rounded-full"></span> EVENT CATEGORIES
+                  {category && (
+                    <span className="text-primary ml-2 text-xl">({category.toUpperCase()})</span>
+                  )}
+                </h2>
+                
+                {category && (
+                  <Link to={`/events/${id}/gender`}>
+                    <Button variant="outline" className="text-xs h-10 px-4 rounded-full border-white/20 bg-white/5 hover:bg-white/10">
+                      ← CHANGE CATEGORY
+                    </Button>
+                  </Link>
+                )}
+              </div>
               
               {eventSubEvents.length === 0 ? (
                 <div className="bg-[#1d1612] p-8 rounded-2xl border border-white/5 text-center">

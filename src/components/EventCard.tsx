@@ -87,8 +87,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
         </div>
 
         <div className="mt-auto flex flex-col gap-3">
-          <Link to={`/events/${event.id}`}>
-            <Button variant="primary" fullWidth className="text-xs tracking-widest font-bold py-3 rounded-full">
+          <Link to={`/events/${event.id}/gender`}>
+            <Button size="sm" className="w-full text-[10px] tracking-widest font-bold h-10 py-3 rounded-full">
               VIEW EVENT & REGISTER →
             </Button>
           </Link>

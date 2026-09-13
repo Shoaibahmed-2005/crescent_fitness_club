@@ -421,9 +421,9 @@ const AdminDashboard: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <input type="text" placeholder="Title (e.g. 100m Sprint)" value={newSubEvent.title} onChange={e => setNewSubEvent({...newSubEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" required />
                           <select value={newSubEvent.gender_restriction} onChange={e => setNewSubEvent({...newSubEvent, gender_restriction: e.target.value as any})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white">
-                            <option value="GENERAL">General (Both)</option>
-                            <option value="MALE_ONLY">Male Only</option>
-                            <option value="FEMALE_ONLY">Female Only</option>
+                            <option value="GENERAL">Participant Category: General</option>
+                            <option value="MALE_ONLY">Participant Category: Male Only</option>
+                            <option value="FEMALE_ONLY">Participant Category: Female Only</option>
                           </select>
                           <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                           <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
@@ -469,9 +469,9 @@ const AdminDashboard: React.FC = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" placeholder="Title (e.g. 100m Sprint)" value={newSubEvent.title} onChange={e => setNewSubEvent({...newSubEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" required />
                                     <select value={newSubEvent.gender_restriction} onChange={e => setNewSubEvent({...newSubEvent, gender_restriction: e.target.value as any})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm">
-                                      <option value="GENERAL">General (Both)</option>
-                                      <option value="MALE_ONLY">Male Only</option>
-                                      <option value="FEMALE_ONLY">Female Only</option>
+                                      <option value="GENERAL">Participant Category: General</option>
+                                      <option value="MALE_ONLY">Participant Category: Male Only</option>
+                                      <option value="FEMALE_ONLY">Participant Category: Female Only</option>
                                     </select>
                                     <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
                                     <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />

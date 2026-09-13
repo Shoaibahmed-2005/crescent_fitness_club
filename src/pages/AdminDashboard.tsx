@@ -287,6 +287,64 @@ const AdminDashboard: React.FC = () => {
     });
   };
 
+  const renderSubEventsGroup = (title: string, groupSubEvents: typeof subEvents) => {
+    if (groupSubEvents.length === 0) return null;
+    return (
+      <div className="mb-8 last:mb-0 w-full">
+        <h4 className="text-sm font-black text-primary uppercase tracking-widest mb-4 border-b border-white/10 pb-2">{title}</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {groupSubEvents.map(se => {
+            const regCount = allRegistrations.filter(r => r.sub_event_id === se.id).length;
+            return (
+              <div key={se.id} className="bg-[#1d1612] border border-white/5 p-4 rounded-lg flex flex-col justify-between items-start gap-4">
+                <div className="w-full flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      {se.image_url && <img src={se.image_url} alt={se.title} className="w-8 h-8 rounded object-cover" />}
+                      <p className="font-bold text-sm text-white">{se.title}</p>
+                    </div>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">{se.gender_restriction.replace('_', ' ')}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400">Registrations</p>
+                    <p className="font-bold text-primary">{regCount} / {se.max_capacity}</p>
+                  </div>
+                </div>
+                <div className="w-full flex justify-end gap-2">
+                  <button onClick={() => startEditSubEvent(se)} className="text-xs text-gray-400 hover:text-white transition-colors"><Edit2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleDeleteSubEvent(se.id)} className="text-xs text-red-500/50 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                </div>
+
+                {editingSubEventId === se.id && (
+                  <form onSubmit={(e) => handleUpdateSubEvent(e, se.id)} className="w-full mt-4 bg-black/20 p-4 rounded-lg space-y-4">
+                    <h5 className="text-xs font-bold text-primary uppercase tracking-widest">Edit Sub-Event</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <input type="text" placeholder="Title (e.g. 100m Sprint)" value={newSubEvent.title} onChange={e => setNewSubEvent({...newSubEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" required />
+                      <select value={newSubEvent.gender_restriction} onChange={e => setNewSubEvent({...newSubEvent, gender_restriction: e.target.value as any})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm">
+                        <option value="GENERAL">Participant Category: General</option>
+                        <option value="MALE_ONLY">Participant Category: Male Only</option>
+                        <option value="FEMALE_ONLY">Participant Category: Female Only</option>
+                      </select>
+                      <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
+                      <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
+                      <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 text-sm" />
+                    </div>
+                    <textarea data-lenis-prevent="true" placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
+                    <textarea data-lenis-prevent="true" placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSubEventId(null)}>CANCEL</Button>
+                      <Button type="submit" size="sm">UPDATE</Button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="py-24 container mx-auto px-6 relative z-10 min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
@@ -437,57 +495,15 @@ const AdminDashboard: React.FC = () => {
                       </form>
                     )}
 
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-6 flex flex-col w-full">
                       {subEvents.filter(se => se.event_id === event.id).length === 0 ? (
                         <p className="text-sm text-gray-500 italic">No sub-events added yet.</p>
                       ) : (
-                        subEvents.filter(se => se.event_id === event.id).map(se => {
-                          const regCount = allRegistrations.filter(r => r.sub_event_id === se.id).length;
-                          return (
-                            <div key={se.id} className="bg-[#1d1612] border border-white/5 p-4 rounded-lg flex flex-col justify-between items-start gap-4">
-                              <div className="w-full flex justify-between items-start">
-                                <div>
-                                  <div className="flex items-center gap-3">
-                                    {se.image_url && <img src={se.image_url} alt={se.title} className="w-8 h-8 rounded object-cover" />}
-                                    <p className="font-bold text-sm text-white">{se.title}</p>
-                                  </div>
-                                  <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">{se.gender_restriction.replace('_', ' ')}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-xs text-gray-400">Registrations</p>
-                                  <p className="font-bold text-primary">{regCount} / {se.max_capacity}</p>
-                                </div>
-                              </div>
-                              <div className="w-full flex justify-end gap-2">
-                                <button onClick={() => startEditSubEvent(se)} className="text-xs text-gray-400 hover:text-white transition-colors"><Edit2 className="w-4 h-4" /></button>
-                                <button onClick={() => handleDeleteSubEvent(se.id)} className="text-xs text-red-500/50 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                              </div>
-
-                              {editingSubEventId === se.id && (
-                                <form onSubmit={(e) => handleUpdateSubEvent(e, se.id)} className="w-full mt-4 bg-black/20 p-4 rounded-lg space-y-4">
-                                  <h5 className="text-xs font-bold text-primary uppercase tracking-widest">Edit Sub-Event</h5>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input type="text" placeholder="Title (e.g. 100m Sprint)" value={newSubEvent.title} onChange={e => setNewSubEvent({...newSubEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" required />
-                                    <select value={newSubEvent.gender_restriction} onChange={e => setNewSubEvent({...newSubEvent, gender_restriction: e.target.value as any})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm">
-                                      <option value="GENERAL">Participant Category: General</option>
-                                      <option value="MALE_ONLY">Participant Category: Male Only</option>
-                                      <option value="FEMALE_ONLY">Participant Category: Female Only</option>
-                                    </select>
-                                    <input type="number" placeholder="Max Capacity" value={newSubEvent.max_capacity} onChange={e => setNewSubEvent({...newSubEvent, max_capacity: parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
-                                    <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
-                                    <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 text-sm" />
-                                  </div>
-                                  <textarea data-lenis-prevent="true" placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
-                                  <textarea data-lenis-prevent="true" placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
-                                  <div className="flex justify-end gap-2">
-                                    <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSubEventId(null)}>CANCEL</Button>
-                                    <Button type="submit" size="sm">UPDATE</Button>
-                                  </div>
-                                </form>
-                              )}
-                            </div>
-                          );
-                        })
+                        <>
+                          {renderSubEventsGroup('Male Events', subEvents.filter(se => se.event_id === event.id && se.gender_restriction === 'MALE_ONLY'))}
+                          {renderSubEventsGroup('Female Events', subEvents.filter(se => se.event_id === event.id && se.gender_restriction === 'FEMALE_ONLY'))}
+                          {renderSubEventsGroup('General Events', subEvents.filter(se => se.event_id === event.id && se.gender_restriction === 'GENERAL'))}
+                        </>
                       )}
                     </div>
                   </div>

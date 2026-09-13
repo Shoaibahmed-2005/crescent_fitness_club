@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ShieldCheck, Users, Calendar as CalIcon, Plus, Edit2, Trash2, Download } from 'lucide-react';
-import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/Button';
@@ -38,6 +38,24 @@ const AdminDashboard: React.FC = () => {
       fetchAdminData();
     }
   }, [user]);
+
+  const [qrPngUrl, setQrPngUrl] = useState('');
+  const [qrSvgUrl, setQrSvgUrl] = useState('');
+
+  useEffect(() => {
+    if (activeTab === 'QR') {
+      const url = "https://crescent-fitness-club.vercel.app";
+      QRCode.toDataURL(url, { width: 1024, margin: 2 }, (err, dataUrl) => {
+        if (!err) setQrPngUrl(dataUrl);
+      });
+      QRCode.toString(url, { type: 'svg', width: 1024, margin: 2 }, (err, svgString) => {
+        if (!err) {
+          const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+          setQrSvgUrl(URL.createObjectURL(blob));
+        }
+      });
+    }
+  }, [activeTab]);
 
   const fetchAdminData = async () => {
     const [eventsRes, subEventsRes, regRes, profilesRes] = await Promise.all([
@@ -646,35 +664,20 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-gray-400 mb-10 max-w-md">Download and print this QR code. When students scan it, it will instantly open the website so they can register for events.</p>
                 
                 <div className="bg-white p-6 rounded-xl mb-10 inline-block shadow-2xl">
-                  <div id="qr-code-svg-container" className="flex items-center justify-center">
-                    <QRCodeSVG 
-                      value="https://crescent-fitness-club.vercel.app" 
-                      size={256} 
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
-                  {/* Hidden canvas for high-res PNG export */}
-                  <div style={{ display: 'none' }}>
-                    <QRCodeCanvas 
-                      id="qr-code-canvas"
-                      value="https://crescent-fitness-club.vercel.app" 
-                      size={1024} 
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
+                  {qrPngUrl ? (
+                    <img src={qrPngUrl} alt="Website QR Code" className="w-64 h-64" />
+                  ) : (
+                    <div className="w-64 h-64 flex items-center justify-center text-black/50">Generating...</div>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
                   <Button 
                     className="flex-1 flex items-center justify-center gap-2"
                     onClick={() => {
-                      const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
-                      if (canvas) {
-                        const pngUrl = canvas.toDataURL('image/png');
+                      if (qrPngUrl) {
                         const downloadLink = document.createElement('a');
-                        downloadLink.href = pngUrl;
+                        downloadLink.href = qrPngUrl;
                         downloadLink.download = 'CFC-Website-QR.png';
                         document.body.appendChild(downloadLink);
                         downloadLink.click();
@@ -688,13 +691,9 @@ const AdminDashboard: React.FC = () => {
                     variant="outline"
                     className="flex-1 flex items-center justify-center gap-2"
                     onClick={() => {
-                      const svg = document.querySelector('#qr-code-svg-container svg');
-                      if (svg) {
-                        const svgData = new XMLSerializer().serializeToString(svg);
-                        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-                        const url = URL.createObjectURL(blob);
+                      if (qrSvgUrl) {
                         const downloadLink = document.createElement('a');
-                        downloadLink.href = url;
+                        downloadLink.href = qrSvgUrl;
                         downloadLink.download = 'CFC-Website-QR.svg';
                         document.body.appendChild(downloadLink);
                         downloadLink.click();

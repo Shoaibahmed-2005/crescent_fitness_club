@@ -219,7 +219,6 @@ const Registration: React.FC = () => {
           </a>
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <Button onClick={() => navigate('/events')} className="flex-1 tracking-widest text-xs font-bold py-4 rounded-full bg-[#111] hover:bg-[#1a1a1a] border border-white/10 text-white">BACK TO EVENTS</Button>
-            <Button onClick={() => navigate('/dashboard')} className="flex-1 tracking-widest text-xs font-bold py-4 rounded-full bg-primary text-black border-none">VIEW DASHBOARD</Button>
           </div>
         </div>
       </div>

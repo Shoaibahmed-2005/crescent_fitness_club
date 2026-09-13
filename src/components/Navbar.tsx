@@ -55,6 +55,24 @@ const Navbar: React.FC = () => {
 
   // Specific header for Event Details and Registration pages
   const isEventSubPage = location.pathname.match(/^\/events\/[^/]+(\/register)?$/);
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Crescent Fitness Club',
+      text: 'Check out Crescent Fitness Club!',
+      url: 'https://crescent-fitness-club.vercel.app',
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Website link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
   if (isEventSubPage) {
     const isRegisterRoute = location.pathname.endsWith('/register');
     const eventId = location.pathname.split('/')[2];
@@ -84,8 +102,8 @@ const Navbar: React.FC = () => {
           </nav>
           
           {/* Right */}
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="hidden md:flex gap-2 text-xs h-10 px-4 rounded-full border-white/10 bg-[#111]">
+          <div className="hidden md:flex items-center gap-4">
+            <Button onClick={handleShare} variant="outline" className="gap-2 text-xs h-10 px-4 rounded-full border-white/20 bg-white/5 hover:bg-white/10">
               <Share2 className="w-4 h-4" /> SHARE
             </Button>
           </div>

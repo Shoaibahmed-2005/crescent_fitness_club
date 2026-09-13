@@ -34,6 +34,24 @@ const EventDetails: React.FC = () => {
 
   const container = useRef<HTMLDivElement>(null);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: event?.title || 'Crescent Fitness Club Event',
+      text: `Check out ${event?.title} at Crescent Fitness Club!`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Event link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
   useGSAP(() => {
     // Hero Entrance
     gsap.from('.event-hero', {
@@ -84,7 +102,7 @@ const EventDetails: React.FC = () => {
             </p>
           </div>
           <div className="w-full lg:w-1/3 flex gap-4 shrink-0">
-            <Button variant="outline" className="flex-1 h-14 bg-[#111] border-white/10 text-xs tracking-widest font-bold rounded-full">
+            <Button onClick={handleShare} variant="outline" className="flex-1 h-14 bg-[#111] border-white/10 text-xs tracking-widest font-bold rounded-full">
               <Share2 className="w-4 h-4 mr-2" /> SHARE
             </Button>
             <Button 

@@ -230,12 +230,10 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteRegistration = async (id: string) => {
     if (!window.confirm('Are you sure you want to permanently delete this registration? The student will be able to register again.')) return;
     
-    const { data, error } = await supabase.from('registrations').delete().eq('id', id).select();
+    const { error } = await supabase.rpc('delete_registration_admin', { reg_id: id });
     
     if (error) {
       alert("Failed to delete registration: " + error.message);
-    } else if (data && data.length === 0) {
-      alert("Delete blocked! You need to run the SQL query in Supabase to allow Admins to delete. Check my previous messages for the SQL code.");
     } else {
       setAllRegistrations(allRegistrations.filter(r => r.id !== id));
       if (selectedRegistration?.id === id) {

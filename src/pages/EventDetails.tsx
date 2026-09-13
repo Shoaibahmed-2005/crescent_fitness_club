@@ -25,40 +25,7 @@ const EventDetails: React.FC = () => {
   } else if (category === 'female') {
     eventSubEvents = eventSubEvents.filter(se => se.gender_restriction === 'FEMALE_ONLY' || se.gender_restriction === 'GENERAL');
   }
-
-  if (!event) {
-    return (
-      <div className="min-h-screen flex items-center justify-center pt-24 bg-transparent">
-        <div className="text-center bg-[#1d1612] p-12 rounded-2xl border border-white/5">
-          <h2 className="text-3xl font-black mb-4 font-display text-white">EVENT NOT FOUND</h2>
-          <Button onClick={() => navigate('/events')} className="rounded-full">RETURN TO EVENTS</Button>
-        </div>
-      </div>
-    );
-  }
-
-  const isPastDeadline = event.registration_deadline ? new Date(event.registration_deadline) < new Date() : false;
-  const isClosed = !event.is_active || isPastDeadline;
-
   const container = useRef<HTMLDivElement>(null);
-
-  const handleShare = async () => {
-    const shareData = {
-      title: event?.title || 'Crescent Fitness Club Event',
-      text: `Check out ${event?.title} at Crescent Fitness Club!`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareData.url);
-        alert('Event link copied to clipboard!');
-      }
-    } catch (err) {
-      console.error('Error sharing:', err);
-    }
-  };
 
   useGSAP(() => {
     // Hero Entrance
@@ -95,6 +62,38 @@ const EventDetails: React.FC = () => {
       ease: 'power3.out'
     });
   }, { scope: container });
+
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24 bg-transparent">
+        <div className="text-center bg-[#1d1612] p-12 rounded-2xl border border-white/5">
+          <h2 className="text-3xl font-black mb-4 font-display text-white">EVENT NOT FOUND</h2>
+          <Button onClick={() => navigate('/events')} className="rounded-full">RETURN TO EVENTS</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const isPastDeadline = event.registration_deadline ? new Date(event.registration_deadline) < new Date() : false;
+  const isClosed = !event.is_active || isPastDeadline;
+
+  const handleShare = async () => {
+    const shareData = {
+      title: event?.title || 'Crescent Fitness Club Event',
+      text: `Check out ${event?.title} at Crescent Fitness Club!`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Event link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   return (
     <div ref={container} className="min-h-screen pt-24 pb-24">

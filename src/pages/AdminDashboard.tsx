@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar as CalIcon, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ShieldCheck, Users, Calendar as CalIcon, Plus, Edit2, Trash2, Download } from 'lucide-react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/Button';
@@ -8,7 +9,7 @@ import type { Event, SubEvent, Registration, User } from '../types';
 
 const AdminDashboard: React.FC = () => {
   const { user, isLoading } = useApp();
-  const [activeTab, setActiveTab] = useState<'REGISTRATIONS' | 'EVENTS'>('EVENTS');
+  const [activeTab, setActiveTab] = useState<'REGISTRATIONS' | 'EVENTS' | 'QR'>('EVENTS');
   
   const [allRegistrations, setAllRegistrations] = useState<Registration[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
@@ -319,6 +320,12 @@ const AdminDashboard: React.FC = () => {
           >
             REGISTRATIONS
           </button>
+          <button 
+            onClick={() => setActiveTab('QR')}
+            className={`px-8 py-4 font-semibold tracking-wider text-sm transition-colors whitespace-nowrap ${activeTab === 'QR' ? 'bg-primary/10 text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+          >
+            WEBSITE QR
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -625,6 +632,79 @@ const AdminDashboard: React.FC = () => {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'QR' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold font-display text-white">Website QR Code</h3>
+              </div>
+              <div className="bg-[#140f0c] p-10 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
+                <h4 className="text-2xl font-black uppercase tracking-widest text-white mb-2">Scan to Visit Our Fitness Club</h4>
+                <p className="text-gray-400 mb-10 max-w-md">Download and print this QR code. When students scan it, it will instantly open the website so they can register for events.</p>
+                
+                <div className="bg-white p-6 rounded-xl mb-10 inline-block shadow-2xl">
+                  <div id="qr-code-svg-container" className="flex items-center justify-center">
+                    <QRCodeSVG 
+                      value="https://crescent-fitness-club.vercel.app" 
+                      size={256} 
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  {/* Hidden canvas for high-res PNG export */}
+                  <div style={{ display: 'none' }}>
+                    <QRCodeCanvas 
+                      id="qr-code-canvas"
+                      value="https://crescent-fitness-club.vercel.app" 
+                      size={1024} 
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                  <Button 
+                    className="flex-1 flex items-center justify-center gap-2"
+                    onClick={() => {
+                      const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
+                      if (canvas) {
+                        const pngUrl = canvas.toDataURL('image/png');
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = pngUrl;
+                        downloadLink.download = 'CFC-Website-QR.png';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                      }
+                    }}
+                  >
+                    <Download className="w-4 h-4" /> DOWNLOAD PNG
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="flex-1 flex items-center justify-center gap-2"
+                    onClick={() => {
+                      const svg = document.querySelector('#qr-code-svg-container svg');
+                      if (svg) {
+                        const svgData = new XMLSerializer().serializeToString(svg);
+                        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = url;
+                        downloadLink.download = 'CFC-Website-QR.svg';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                      }
+                    }}
+                  >
+                    <Download className="w-4 h-4" /> DOWNLOAD SVG
+                  </Button>
+                </div>
               </div>
             </div>
           )}

@@ -718,7 +718,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Account Creation Date</p>
-                        <p className="text-white font-medium">{participant ? new Date(participant.created_at).toLocaleString() : 'N/A'}</p>
+                        <p className="text-white font-medium">{participant?.created_at ? new Date(participant.created_at).toLocaleString() : 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">System Role</p>

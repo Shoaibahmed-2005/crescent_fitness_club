@@ -79,14 +79,17 @@ BEGIN
     WHERE LOWER(TRIM(email)) = p_email;
 
     IF FOUND THEN
-        -- Update the profile with new department and year if they were empty
+        -- Update the profile with latest details
         UPDATE profiles SET 
-          department = COALESCE(NULLIF(department, ''), p_department),
-          year = COALESCE(NULLIF(year, ''), p_year)
+          name = COALESCE(NULLIF(p_name, ''), name),
+          phone = COALESCE(NULLIF(p_phone, ''), phone),
+          registration_number = COALESCE(NULLIF(p_reg_number, ''), registration_number),
+          department = COALESCE(NULLIF(p_department, ''), department),
+          year = COALESCE(NULLIF(p_year, ''), year)
         WHERE id = v_profile_id;
         
-        p_name := v_existing_name;
-        p_reg_number := v_existing_reg_number;
+        -- Override with whatever the updated profile now has (or just keep what was passed)
+        -- Since we just updated it, we can safely use the incoming parameters for the response
     ELSE
         -- Generate a new profile ID and insert
         v_profile_id := gen_random_uuid();

@@ -559,7 +559,8 @@ const AdminDashboard: React.FC = () => {
                           </td>
                           <td className="px-6 py-4">
                             <p className="font-bold text-white">{participant?.name || 'Unknown'}</p>
-                            <p className="text-xs text-gray-400 mt-1">RRN: {participant?.registration_number || 'N/A'}</p>
+                            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">RRN: {participant?.registration_number || 'N/A'}</p>
+                            <p className="text-[10px] text-primary mt-1 uppercase tracking-wider">{participant?.department || 'N/A'} • {participant?.year || 'N/A'}</p>
                           </td>
                           <td className="px-6 py-4">
                             <p className="text-sm text-gray-300">{participant?.phone}</p>

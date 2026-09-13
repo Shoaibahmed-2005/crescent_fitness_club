@@ -26,6 +26,7 @@ const Registration: React.FC = () => {
     phone: '',
     registration_number: '',
     department: '',
+    custom_department: '',
     year: ''
   });
 
@@ -64,6 +65,7 @@ const Registration: React.FC = () => {
     
     if (!name.trim()) return "Full Name is required.";
     if (!department.trim()) return "Department is required.";
+    if (department === 'Other' && !formData.custom_department.trim()) return "Please specify your department.";
     if (!year.trim()) return "Year is required.";
     
     const phoneRegex = /^\d{10}$/;
@@ -102,7 +104,7 @@ const Registration: React.FC = () => {
         p_gender: null,
         p_phone: formData.phone.trim(),
         p_reg_number: formData.registration_number.trim(),
-        p_department: formData.department.trim(),
+        p_department: formData.department === 'Other' ? formData.custom_department.trim() : formData.department.trim(),
         p_year: formData.year.trim(),
         p_sub_event_id: subEvent.id
       });
@@ -307,26 +309,47 @@ const Registration: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Department</label>
-                <input 
-                  type="text" 
+                <select 
                   required
-                  placeholder="e.g. B.Tech CSE" 
                   value={formData.department}
                   onChange={(e) => setFormData({...formData, department: e.target.value})}
-                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                />
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                >
+                  <option value="" disabled>Select Department</option>
+                  <option value="B.Tech CSE">B.Tech CSE</option>
+                  <option value="AI&DS">AI&DS</option>
+                  <option value="Biotechnology">Biotechnology</option>
+                  <option value="CSE">CSE</option>
+                  <option value="IT">IT</option>
+                  <option value="Cybersecurity">Cybersecurity</option>
+                  <option value="Other">Other (Please specify)</option>
+                </select>
+                {formData.department === 'Other' && (
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Enter your department" 
+                    value={formData.custom_department}
+                    onChange={(e) => setFormData({...formData, custom_department: e.target.value})}
+                    className="w-full mt-3 bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                  />
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Year / Section</label>
-                <input 
-                  type="text" 
+                <select 
                   required
-                  placeholder="e.g. 2nd Year 'A'" 
                   value={formData.year}
                   onChange={(e) => setFormData({...formData, year: e.target.value})}
-                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
-                />
+                  className="w-full bg-[#1d1612] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none"
+                >
+                  <option value="" disabled>Select Year</option>
+                  <option value="1st yr">1st yr</option>
+                  <option value="2nd yr">2nd yr</option>
+                  <option value="3rd yr">3rd yr</option>
+                  <option value="4th yr">4th yr</option>
+                </select>
               </div>
 
             </div>

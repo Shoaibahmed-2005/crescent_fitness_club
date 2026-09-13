@@ -110,7 +110,7 @@ const Home: React.FC = () => {
                   </div>
                 </div>
 
-                <Link to={`/events/${featuredEvent.id}/register`}>
+                <Link to={`/events/${featuredEvent.id}`}>
                   <Button className="tracking-widest font-bold">REGISTER NOW →</Button>
                 </Link>
               </div>

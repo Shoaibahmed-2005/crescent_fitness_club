@@ -663,48 +663,33 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Personal Details */}
+                  {/* Participant Details */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Personal Details</h3>
+                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Participant Details</h3>
                     <div className="space-y-3">
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Full Name</p>
                         <p className="text-white font-medium">{participant?.name || 'Not provided'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Student ID / Register Number</p>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Register Number (RRN)</p>
                         <p className="text-white font-medium">{participant?.registration_number || 'Not provided'}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Email Address</p>
-                        <p className="text-white font-medium">{participant?.email || 'Not provided'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Phone Number</p>
                         <p className="text-white font-medium">{participant?.phone || 'Not provided'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Gender</p>
-                        <p className="text-white font-medium">{participant?.gender || 'Not provided'}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Academic Details */}
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-primary tracking-widest uppercase border-b border-white/10 pb-2">Academic Details</h3>
-                    <div className="space-y-3">
-                      <div>
                         <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Department</p>
                         <p className={`font-medium ${participant?.department ? 'text-white' : 'text-gray-400 italic'}`}>{participant?.department || 'Not provided'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Year / Section</p>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Year</p>
                         <p className={`font-medium ${participant?.year ? 'text-white' : 'text-gray-400 italic'}`}>{participant?.year || 'Not provided'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">College / Institution</p>
-                        <p className="text-white font-medium">Crescent Institute of Science & Technology</p>
+                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Email Address</p>
+                        <p className="text-white font-medium">{participant?.email || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>

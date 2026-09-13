@@ -227,6 +227,20 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteRegistration = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this registration? The student will be able to register again.')) return;
+    
+    const { error } = await supabase.from('registrations').delete().eq('id', id);
+    if (!error) {
+      setAllRegistrations(allRegistrations.filter(r => r.id !== id));
+      if (selectedRegistration?.id === id) {
+        setSelectedRegistration(null);
+      }
+    } else {
+      alert("Failed to delete registration: " + error.message);
+    }
+  };
+
   const startEditEvent = (ev: Event) => {
     setEditingEventId(ev.id);
     setIsCreatingEvent(false);
@@ -580,14 +594,23 @@ const AdminDashboard: React.FC = () => {
                             </p>
                           </td>
                           <td className="px-6 py-4">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-[10px] font-bold tracking-widest px-4 py-2"
-                              onClick={() => setSelectedRegistration(reg)}
-                            >
-                              VIEW DETAILS
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-[10px] font-bold tracking-widest px-4 py-2"
+                                onClick={() => setSelectedRegistration(reg)}
+                              >
+                                VIEW DETAILS
+                              </Button>
+                              <button 
+                                onClick={() => handleDeleteRegistration(reg.id)} 
+                                title="Delete Registration"
+                                className="p-2 text-red-500/50 hover:text-red-500 transition-colors bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 rounded-md"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

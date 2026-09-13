@@ -366,7 +366,7 @@ const AdminDashboard: React.FC = () => {
                     <input type="datetime-local" value={newEvent.deadline} onChange={e => setNewEvent({...newEvent, deadline: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                     <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                   </div>
-                  <textarea placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
+                  <textarea data-lenis-prevent="true" placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
                   <div className="flex justify-end gap-2 mt-4">
                     <Button type="button" variant="ghost" onClick={() => setIsCreatingEvent(false)}>CANCEL</Button>
                     <Button type="submit">SAVE EVENT</Button>
@@ -407,7 +407,7 @@ const AdminDashboard: React.FC = () => {
                           <input type="datetime-local" value={newEvent.deadline} onChange={e => setNewEvent({...newEvent, deadline: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                           <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                         </div>
-                        <textarea placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
+                        <textarea data-lenis-prevent="true" placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
                         <div className="flex justify-end gap-2 mt-4">
                           <Button type="button" variant="ghost" size="sm" onClick={() => setEditingEventId(null)}>CANCEL</Button>
                           <Button type="submit" size="sm">UPDATE EVENT</Button>
@@ -429,7 +429,7 @@ const AdminDashboard: React.FC = () => {
                           <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                           <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
                         </div>
-                        <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-20" />
+                        <textarea data-lenis-prevent="true" placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-20" />
                         <div className="flex justify-end gap-2">
                           <Button type="button" variant="ghost" size="sm" onClick={() => setIsCreatingSubEvent(null)}>CANCEL</Button>
                           <Button type="submit" size="sm">ADD</Button>
@@ -477,8 +477,8 @@ const AdminDashboard: React.FC = () => {
                                     <input type="text" placeholder="Venue" value={newSubEvent.venue} onChange={e => setNewSubEvent({...newSubEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm" />
                                     <input type="file" accept="image/*" onChange={e => setSubEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 text-sm" />
                                   </div>
-                                  <textarea placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
-                                  <textarea placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
+                                  <textarea data-lenis-prevent="true" placeholder="Description" value={newSubEvent.description} onChange={e => setNewSubEvent({...newSubEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
+                                  <textarea data-lenis-prevent="true" placeholder="Rules" value={newSubEvent.rules} onChange={e => setNewSubEvent({...newSubEvent, rules: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white text-sm h-20" />
                                   <div className="flex justify-end gap-2">
                                     <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSubEventId(null)}>CANCEL</Button>
                                     <Button type="submit" size="sm">UPDATE</Button>

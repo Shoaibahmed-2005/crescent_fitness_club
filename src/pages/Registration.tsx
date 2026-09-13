@@ -116,8 +116,8 @@ const Registration: React.FC = () => {
       // Send Confirmation Email
       try {
         await emailjs.send(
-          'service_hab7guz',
-          'template_vyqf2ym',
+          'service_a3wmkjr',
+          'template_2kgm703',
           {
             to_name: data.profile.name,
             to_email: data.profile.email,
@@ -129,7 +129,7 @@ const Registration: React.FC = () => {
             venue: subEvent.venue || event.venue || 'TBA',
             date: event.registration_deadline ? new Date(event.registration_deadline).toLocaleDateString() : 'TBA'
           },
-          'j3LMvUFyb6aYsYbSr'
+          'PlsZViIoPOaJ26_Kx'
         );
       } catch (emailError) {
         console.error('Failed to send confirmation email:', emailError);

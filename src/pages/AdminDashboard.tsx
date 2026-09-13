@@ -230,14 +230,17 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteRegistration = async (id: string) => {
     if (!window.confirm('Are you sure you want to permanently delete this registration? The student will be able to register again.')) return;
     
-    const { error } = await supabase.from('registrations').delete().eq('id', id);
-    if (!error) {
+    const { data, error } = await supabase.from('registrations').delete().eq('id', id).select();
+    
+    if (error) {
+      alert("Failed to delete registration: " + error.message);
+    } else if (data && data.length === 0) {
+      alert("Delete blocked! You need to run the SQL query in Supabase to allow Admins to delete. Check my previous messages for the SQL code.");
+    } else {
       setAllRegistrations(allRegistrations.filter(r => r.id !== id));
       if (selectedRegistration?.id === id) {
         setSelectedRegistration(null);
       }
-    } else {
-      alert("Failed to delete registration: " + error.message);
     }
   };
 
@@ -547,8 +550,8 @@ const AdminDashboard: React.FC = () => {
                       if (filterEventId !== 'ALL' && evt?.id !== filterEventId) return false;
                       if (filterSubEventId !== 'ALL' && se?.id !== filterSubEventId) return false;
                       
-                      if (searchQuery) {
-                        const q = searchQuery.toLowerCase();
+                      if (searchQuery.trim()) {
+                        const q = searchQuery.toLowerCase().trim();
                         const matchName = participant?.name?.toLowerCase().includes(q);
                         const matchEmail = participant?.email?.toLowerCase().includes(q);
                         const matchPhone = participant?.phone?.includes(q);

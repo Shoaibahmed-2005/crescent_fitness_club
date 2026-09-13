@@ -131,8 +131,9 @@ const Registration: React.FC = () => {
           },
           'PlsZViIoPOaJ26_Kx'
         );
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error('Failed to send confirmation email:', emailError);
+        alert('EmailJS Error Debug: ' + JSON.stringify(emailError));
         setEmailFailed(true);
       }
 

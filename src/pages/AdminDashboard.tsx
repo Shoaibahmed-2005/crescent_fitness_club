@@ -479,7 +479,7 @@ const AdminDashboard: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold font-display text-white">Manage Events</h3>
-                <Button onClick={() => { setIsCreatingEvent(!isCreatingEvent); setEditingEventId(null); setNewEvent({ title: '', description: '', venue: '', deadline: '' }); }} className="rounded-full flex items-center gap-2">
+                <Button onClick={() => { setIsCreatingEvent(!isCreatingEvent); setEditingEventId(null); setNewEvent({ title: '', description: '', venue: '', deadline: '', participant_registration_limit: '' }); }} className="rounded-full flex items-center gap-2">
                   <Plus className="w-4 h-4" /> CREATE EVENT
                 </Button>
               </div>

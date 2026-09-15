@@ -21,6 +21,7 @@ export interface Event {
   registration_deadline: string;
   image_url?: string;
   is_active: boolean;
+  participant_registration_limit?: number | null;
   created_at: string;
   created_by?: string;
 }

@@ -25,7 +25,8 @@ const AdminDashboard: React.FC = () => {
 
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [newEvent, setNewEvent] = useState({ title: '', description: '', venue: '', deadline: '' });
+  const [newEvent, setNewEvent] = useState({ title: '', description: '', venue: '', deadline: '', participant_registration_limit: '' as number | '' });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean, type: 'EVENT' | 'SUB_EVENT' | 'REGISTRATION', id: string } | null>(null);
   const [eventImage, setEventImage] = useState<File | null>(null);
   
   const [isCreatingSubEvent, setIsCreatingSubEvent] = useState<string | null>(null); // event_id
@@ -107,6 +108,7 @@ const AdminDashboard: React.FC = () => {
       description: newEvent.description,
       venue: newEvent.venue,
       registration_deadline: newEvent.deadline || null,
+      participant_registration_limit: newEvent.participant_registration_limit === '' ? null : newEvent.participant_registration_limit,
       image_url: imageUrl,
       created_by: user.id
     }]).select();
@@ -114,7 +116,7 @@ const AdminDashboard: React.FC = () => {
     if (data) {
       setEvents([data[0], ...events]);
       setIsCreatingEvent(false);
-      setNewEvent({ title: '', description: '', venue: '', deadline: '' });
+      setNewEvent({ title: '', description: '', venue: '', deadline: '', participant_registration_limit: '' });
       setEventImage(null);
     }
   };
@@ -143,24 +145,20 @@ const AdminDashboard: React.FC = () => {
       description: newEvent.description,
       venue: newEvent.venue,
       registration_deadline: newEvent.deadline || null,
+      participant_registration_limit: newEvent.participant_registration_limit === '' ? null : newEvent.participant_registration_limit,
       image_url: imageUrl
     }).eq('id', id).select();
 
     if (data) {
       setEvents(events.map(ev => ev.id === id ? data[0] : ev));
       setEditingEventId(null);
-      setNewEvent({ title: '', description: '', venue: '', deadline: '' });
+      setNewEvent({ title: '', description: '', venue: '', deadline: '', participant_registration_limit: '' });
       setEventImage(null);
     }
   };
 
-  const handleDeleteEvent = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this event? All related data will be lost.')) return;
-    const { error: _error } = await supabase.from('events').delete().eq('id', id);
-    if (!_error) {
-      setEvents(events.filter(e => e.id !== id));
-      setSubEvents(subEvents.filter(se => se.event_id !== id));
-    }
+  const handleDeleteEvent = (id: string) => {
+    setDeleteConfirm({ isOpen: true, type: 'EVENT', id });
   };
 
   const handleCreateSubEvent = async (e: React.FormEvent, eventId: string) => {
@@ -238,27 +236,41 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteSubEvent = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this sub-event?')) return;
-    const { error: _error } = await supabase.from('sub_events').delete().eq('id', id);
-    if (!_error) {
-      setSubEvents(subEvents.filter(se => se.id !== id));
-    }
+  const handleDeleteSubEvent = (id: string) => {
+    setDeleteConfirm({ isOpen: true, type: 'SUB_EVENT', id });
   };
 
-  const handleDeleteRegistration = async (id: string) => {
-    if (!window.confirm('Are you sure you want to permanently delete this registration? The student will be able to register again.')) return;
+  const handleDeleteRegistration = (id: string) => {
+    setDeleteConfirm({ isOpen: true, type: 'REGISTRATION', id });
+  };
+
+  const executeDelete = async () => {
+    if (!deleteConfirm) return;
+    const { type, id } = deleteConfirm;
     
-    const { error } = await supabase.rpc('delete_registration_admin', { reg_id: id });
-    
-    if (error) {
-      alert("Failed to delete registration: " + error.message);
-    } else {
-      setAllRegistrations(allRegistrations.filter(r => r.id !== id));
-      if (selectedRegistration?.id === id) {
-        setSelectedRegistration(null);
+    if (type === 'EVENT') {
+      const { error } = await supabase.from('events').delete().eq('id', id);
+      if (!error) {
+        setEvents(events.filter(e => e.id !== id));
+        setSubEvents(subEvents.filter(se => se.event_id !== id));
+      }
+    } else if (type === 'SUB_EVENT') {
+      const { error } = await supabase.from('sub_events').delete().eq('id', id);
+      if (!error) {
+        setSubEvents(subEvents.filter(se => se.id !== id));
+      }
+    } else if (type === 'REGISTRATION') {
+      const { error } = await supabase.rpc('delete_registration_admin', { reg_id: id });
+      if (error) {
+        alert("Failed to delete registration: " + error.message);
+      } else {
+        setAllRegistrations(allRegistrations.filter(r => r.id !== id));
+        if (selectedRegistration?.id === id) {
+          setSelectedRegistration(null);
+        }
       }
     }
+    setDeleteConfirm(null);
   };
 
   const startEditEvent = (ev: Event) => {
@@ -269,8 +281,65 @@ const AdminDashboard: React.FC = () => {
       title: ev.title,
       description: ev.description || '',
       venue: ev.venue || '',
-      deadline: ev.registration_deadline ? new Date(ev.registration_deadline).toISOString().slice(0, 16) : ''
+      deadline: ev.registration_deadline ? new Date(ev.registration_deadline).toISOString().slice(0, 16) : '',
+      participant_registration_limit: ev.participant_registration_limit ?? ''
     });
+  };
+
+  const handleExportCSV = () => {
+    // Determine the filtered list of registrations
+    const filteredRegistrations = allRegistrations.filter(reg => {
+      const se = subEvents.find(s => s.id === reg.sub_event_id);
+      const evt = events.find(e => e.id === se?.event_id);
+      const participant = profiles.find(p => p.id === reg.user_id);
+      
+      if (filterStatus !== 'ALL' && reg.status !== filterStatus) return false;
+      if (filterEventId !== 'ALL' && evt?.id !== filterEventId) return false;
+      if (filterSubEventId !== 'ALL' && se?.id !== filterSubEventId) return false;
+      
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = participant?.name?.toLowerCase().includes(q);
+        const matchEmail = participant?.email?.toLowerCase().includes(q);
+        const matchPhone = participant?.phone?.includes(q);
+        const matchRRN = participant?.registration_number?.includes(q);
+        const matchFriendlyId = (reg as any).friendly_id?.toLowerCase().includes(q);
+        const matchRegId = reg.id.toLowerCase().includes(q);
+        
+        if (!matchName && !matchEmail && !matchPhone && !matchRRN && !matchFriendlyId && !matchRegId) return false;
+      }
+      
+      return true;
+    });
+
+    if (filteredRegistrations.length === 0) {
+      alert("No data to export.");
+      return;
+    }
+
+    const headers = ['Name', 'Email', 'Phone', 'RRN', 'Gender', 'Sub-event(s) registered', 'Registration date/time'];
+    const rows = filteredRegistrations.map(reg => {
+      const participant = profiles.find(p => p.id === reg.user_id);
+      const se = subEvents.find(s => s.id === reg.sub_event_id);
+      return [
+        `"${participant?.name || ''}"`,
+        `"${participant?.email || ''}"`,
+        `"${participant?.phone || ''}"`,
+        `"${participant?.registration_number || ''}"`,
+        `"${participant?.gender || ''}"`,
+        `"${se?.title || ''}"`,
+        `"${new Date(reg.created_at).toLocaleString()}"`
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Registrations_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const startEditSubEvent = (se: SubEvent) => {
@@ -422,7 +491,8 @@ const AdminDashboard: React.FC = () => {
                     <input type="text" placeholder="Event Title" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" required />
                     <input type="text" placeholder="Venue" value={newEvent.venue} onChange={e => setNewEvent({...newEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                     <input type="datetime-local" value={newEvent.deadline} onChange={e => setNewEvent({...newEvent, deadline: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
-                    <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
+                    <input type="number" placeholder="Max Registrations (Leave empty for unlimited)" value={newEvent.participant_registration_limit} onChange={e => setNewEvent({...newEvent, participant_registration_limit: e.target.value === '' ? '' : parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
+                    <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 md:col-span-2" />
                   </div>
                   <textarea data-lenis-prevent="true" placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
                   <div className="flex justify-end gap-2 mt-4">
@@ -463,7 +533,8 @@ const AdminDashboard: React.FC = () => {
                           <input type="text" placeholder="Event Title" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" required />
                           <input type="text" placeholder="Venue" value={newEvent.venue} onChange={e => setNewEvent({...newEvent, venue: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
                           <input type="datetime-local" value={newEvent.deadline} onChange={e => setNewEvent({...newEvent, deadline: e.target.value})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
-                          <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400" />
+                          <input type="number" placeholder="Max Registrations (Leave empty for unlimited)" value={newEvent.participant_registration_limit} onChange={e => setNewEvent({...newEvent, participant_registration_limit: e.target.value === '' ? '' : parseInt(e.target.value)})} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white" />
+                          <input type="file" accept="image/*" onChange={e => setEventImage(e.target.files?.[0] || null)} className="bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-gray-400 md:col-span-2" />
                         </div>
                         <textarea data-lenis-prevent="true" placeholder="Description" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})} className="w-full bg-[#1d1612] border border-white/5 rounded-lg px-4 py-2 text-white h-24" />
                         <div className="flex justify-end gap-2 mt-4">
@@ -562,9 +633,14 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                 </div>
-                <Button onClick={fetchAdminData} variant="outline" className="shrink-0 h-[42px] px-6 text-xs font-bold tracking-widest">
-                  REFRESH
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={fetchAdminData} variant="outline" className="shrink-0 h-[42px] px-6 text-xs font-bold tracking-widest">
+                    REFRESH
+                  </Button>
+                  <Button onClick={handleExportCSV} className="shrink-0 h-[42px] px-6 text-xs font-bold tracking-widest bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                    <Download className="w-4 h-4" /> EXPORT REPORT
+                  </Button>
+                </div>
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-white/5">
@@ -854,8 +930,33 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       })()}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm bg-black/60">
+          <div className="bg-[#140f0c] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-white/5 bg-[#1d1612]">
+              <h3 className="text-xl font-black uppercase tracking-widest text-red-500 font-display flex items-center gap-3">
+                <Trash2 className="w-6 h-6" /> Confirm Deletion
+              </h3>
+            </div>
+            <div className="p-6">
+              <p className="text-white text-sm">Are you sure you want to delete this? This action cannot be undone.</p>
+            </div>
+            <div className="p-6 border-t border-white/5 bg-[#1d1612] flex justify-end gap-4">
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="tracking-widest font-bold">
+                CANCEL
+              </Button>
+              <Button onClick={executeDelete} className="bg-red-600 hover:bg-red-700 text-white tracking-widest font-bold">
+                CONFIRM DELETE
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default AdminDashboard;
